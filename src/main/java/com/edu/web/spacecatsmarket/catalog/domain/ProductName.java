@@ -1,11 +1,10 @@
 package com.edu.web.spacecatsmarket.catalog.domain;
 
-import org.springframework.util.Assert;
+import com.edu.web.spacecatsmarket.validation.CosmicWordCheck;
+import jakarta.validation.constraints.NotBlank;
 
-public record ProductName(String name) {
-
-    public ProductName {
-        Assert.notNull(name, "product name must nit be null");
-        Assert.hasText(name, "product name must have text");
-    }
+public record ProductName(
+        @NotBlank(message = "product name must have text")
+        @CosmicWordCheck String name
+) {
 }

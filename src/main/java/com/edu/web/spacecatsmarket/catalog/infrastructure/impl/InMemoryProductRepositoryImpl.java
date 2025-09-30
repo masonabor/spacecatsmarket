@@ -3,15 +3,18 @@ package com.edu.web.spacecatsmarket.catalog.infrastructure.impl;
 import com.edu.web.spacecatsmarket.catalog.domain.Product;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductId;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+
+@Repository
 public class InMemoryProductRepositoryImpl implements ProductRepository {
 
-    private static final HashMap<ProductId, Product> products = new HashMap<ProductId, Product>();
+    private static final HashMap<ProductId, Product> products = new HashMap<>();
 
     @Override
     public void save(Product product) {

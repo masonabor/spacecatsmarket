@@ -1,15 +1,12 @@
 package com.edu.web.spacecatsmarket.catalog.domain;
 
-import org.springframework.util.Assert;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 import java.util.UUID;
 
-public record ProductId(UUID id) {
 
-    public ProductId {
-        Assert.notNull(id, "id must not be null");
-    }
-
+public record ProductId(@NotNull(message = "id must not be null") UUID id) {
     public static ProductId newId() {
         return new ProductId(UUID.randomUUID());
     }

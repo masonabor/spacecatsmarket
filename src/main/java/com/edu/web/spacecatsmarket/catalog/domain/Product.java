@@ -1,11 +1,12 @@
 package com.edu.web.spacecatsmarket.catalog.domain;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
+@Data
 @Builder
 public class Product {
 
@@ -18,15 +19,15 @@ public class Product {
     @Builder.Default
     Set<Category> categories = new HashSet<>();
 
-    protected void rename(String name) {
+    public void rename(String name) {
         this.name = new ProductName(name);
     }
 
-    protected void resetDescription(String description) {
+    public void resetDescription(String description) {
         this.description = description;
     }
 
-    protected void changePrice(Double price) {
+    public void changePrice(Double price) {
         this.price = new Price(price);
     }
 
