@@ -1,19 +1,19 @@
 package com.edu.web.spacecatsmarket.catalog.domain;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
+
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
 @Builder
 public class Product {
 
     ProductId id;
     ProductName name;
     String description;
-    Integer amount;
+    ProductAmount amount;
     Price price;
 
     @Builder.Default
@@ -31,19 +31,24 @@ public class Product {
         this.price = new Price(price);
     }
 
-    public void addCategory(Category category) {
+    public Product addCategory(Category category) {
         this.categories.add(category);
+        return this;
     }
 
-    public void removeCategory(Category category) {
+    public Product removeCategory(Category category) {
         this.categories.remove(category);
+        return this;    }
+
+    public Product addToAmount(Integer amount) {
+        Integer previousAmount = this.amount.amount();
+        this.amount = new ProductAmount(previousAmount + amount);
+        return this;
     }
 
-    public void addToAmount(Integer amount) {
-        this.amount += amount;
-    }
-
-    public void removeFromAmount(Integer amount) {
-        this.amount -= amount;
+    public Product removeFromAmount(Integer amount) {
+        Integer previousAmount = this.amount.amount();
+        this.amount = new ProductAmount(previousAmount - amount);
+        return this;
     }
 }

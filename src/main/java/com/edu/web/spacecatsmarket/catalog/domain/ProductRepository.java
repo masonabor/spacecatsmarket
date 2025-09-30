@@ -19,4 +19,5 @@ public interface ProductRepository {
     List<Product> findAll();
     Optional<Product> findById(ProductId id);
     void delete(Product product);
+    List<Product> findAllByCategory(Category category);
 }

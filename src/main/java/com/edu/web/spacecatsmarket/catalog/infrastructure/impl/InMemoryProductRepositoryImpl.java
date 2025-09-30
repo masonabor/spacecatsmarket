@@ -1,5 +1,6 @@
 package com.edu.web.spacecatsmarket.catalog.infrastructure.impl;
 
+import com.edu.web.spacecatsmarket.catalog.domain.Category;
 import com.edu.web.spacecatsmarket.catalog.domain.Product;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductId;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductRepository;
@@ -39,4 +40,11 @@ public class InMemoryProductRepositoryImpl implements ProductRepository {
     public void delete(Product product) {
         products.remove(product.getId());
     }
+
+    // TODO
+    @Override
+    public List<Product> findAllByCategory(Category category) {
+        return null;
+    }
+
 }

@@ -1,7 +1,7 @@
-package com.edu.web.spacecatsmarket.catalog.web;
+package com.edu.web.spacecatsmarket.web;
 
 import com.edu.web.spacecatsmarket.catalog.domain.*;
-import com.edu.web.spacecatsmarket.dto.RequestProductDto;
+import com.edu.web.spacecatsmarket.dto.product.RequestProductDto;
 import com.edu.web.spacecatsmarket.exceptions.ProductNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

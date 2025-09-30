@@ -1,7 +1,7 @@
-package com.edu.web.spacecatsmarket.catalog.web;
+package com.edu.web.spacecatsmarket.web;
 
 import com.edu.web.spacecatsmarket.catalog.domain.*;
-import com.edu.web.spacecatsmarket.dto.RequestProductDto;
+import com.edu.web.spacecatsmarket.dto.product.RequestProductDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
