@@ -18,6 +18,6 @@ public interface ProductRepository {
     void save(Product product);
     List<Product> findAll();
     Optional<Product> findById(ProductId id);
-    void delete(Product product);
+    void delete(ProductId id);
     List<Product> findAllByCategory(Category category);
 }

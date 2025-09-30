@@ -4,6 +4,7 @@ import com.edu.web.spacecatsmarket.catalog.domain.Category;
 import com.edu.web.spacecatsmarket.catalog.domain.Product;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductId;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductRepository;
+import com.edu.web.spacecatsmarket.exceptions.ProductNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -37,8 +38,11 @@ public class InMemoryProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public void delete(Product product) {
-        products.remove(product.getId());
+    public void delete(ProductId id) {
+        if (!products.containsKey(id)) {
+            throw new ProductNotFoundException("product with id " + id + " not found");
+        }
+        products.remove(id);
     }
 
     // TODO

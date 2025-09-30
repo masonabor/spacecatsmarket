@@ -1,6 +1,7 @@
-package com.edu.web.spacecatsmarket.dto.product;
+package com.edu.web.spacecatsmarket.catalog.application.dto;
 
 
+import com.edu.web.spacecatsmarket.catalog.domain.Category;
 import com.edu.web.spacecatsmarket.validation.CosmicWordCheck;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -15,6 +16,6 @@ public record CreateProductDto(
         @NotBlank String description,
         @NotNull @Min(0) Integer amount,
         @NotNull @Min(0) Double price,
-        Set<String> categories
+        Set<Category> categories
     ) {}
 
