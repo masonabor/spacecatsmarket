@@ -1,37 +1,28 @@
 package com.edu.web.spacecatsmarket.web;
 
 import com.edu.web.spacecatsmarket.catalog.application.dto.CreateProductDto;
-import com.edu.web.spacecatsmarket.catalog.domain.*;
+import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
 import com.edu.web.spacecatsmarket.dto.product.RequestProductDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-import java.util.HashSet;
+import java.util.UUID;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        implementationName = "webProductDtoMapper",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface ProductDtoMapper {
 
-    @Mapping(target = "name", expression = "java(product.getName().name())")
-    @Mapping(target = "price", expression = "java(product.getPrice().price())")
-    RequestProductDto toDto(Product product);
+//    ResponseProductDto toResponseDto(CreateProductDto createProductDto);
 
-    @Mapping(target = "id", expression = "java(ProductId.newId())")
-    @Mapping(target = "name", source = "name")
-    @Mapping(target = "description", source = "description")
-    @Mapping(target = "amount", source = "amount")
-    @Mapping(target = "price", source = "price")
-    CreateProductDto toCreateDto(RequestProductDto dto);
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "categories", ignore = true)
+    UpdateProductDto toUpdateDto(String id, RequestProductDto requestProductDto);
+    CreateProductDto toCreateDto(RequestProductDto requestProductDto);
 
-    // TODO ResponseProductDto
-
-    default Product toDomain(RequestProductDto dto) {
-        return Product.builder()
-                .id(ProductId.newId())
-                .name(new ProductName(dto.name()))
-                .description(dto.description())
-                .amount(new ProductAmount(dto.amount()))
-                .price(new Price(dto.price()))
-                .categories(new HashSet<>())
-                .build();
+    default UUID map(String id) {
+        return UUID.fromString(id);
     }
 }

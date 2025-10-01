@@ -2,11 +2,14 @@ package com.edu.web.spacecatsmarket.web;
 
 import com.edu.web.spacecatsmarket.catalog.application.ProductCatalogService;
 import com.edu.web.spacecatsmarket.catalog.application.ProductService;
+import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
 import com.edu.web.spacecatsmarket.catalog.domain.*;
 import com.edu.web.spacecatsmarket.dto.product.RequestProductDto;
+import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.exceptions.ProductNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +20,7 @@ import java.util.UUID;
 @RestController
 @Validated
 @RequiredArgsConstructor
-@RequestMapping("/api/products")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -25,46 +28,32 @@ public class ProductController {
     private final ProductDtoMapper mapper;
 
     @GetMapping
-    public List<RequestProductDto> getAll() {
-        return productCatalogService.getAll().stream()
-                .map(mapper::toDto)
-                .toList();
+    public ResponseEntity<List<ResponseProductDto>> getAll() {
+        return ResponseEntity.ok(productCatalogService.getAll());
     }
 
     @GetMapping("/{id}")
-    public RequestProductDto getById(@PathVariable UUID id) {
-        Product product = Optional.of(productCatalogService.getById(id))
+    public ResponseEntity<ResponseProductDto> getById(@PathVariable String id) {
+        ResponseProductDto response = Optional.of(productCatalogService.getById(UUID.fromString(id)))
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
-        return mapper.toDto(product);
+        return ResponseEntity.ok(response);
     }
 
-    // TODO
     @PostMapping("/create")
-    public RequestProductDto create(@Valid @RequestBody RequestProductDto dto) {
-        productService.createProduct(mapper.toCreateDto(dto));
-        return mapper.toDto(product);
+    public ResponseEntity<ResponseProductDto> create(@Valid @RequestBody RequestProductDto dto) {
+        ResponseProductDto response = productService.createProduct(mapper.toCreateDto(dto));
+        return ResponseEntity.ok(response);
     }
 
-    // TODO
     @PutMapping("/{id}")
-    public RequestProductDto update(@PathVariable UUID id, @Valid @RequestBody RequestProductDto dto) {
-        Product product = repository.findById(new ProductId(id))
-                .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
-
-        product.rename(dto.name());
-        product.resetDescription(dto.description());
-        product.changePrice(dto.price());
-        product.addToAmount(dto.amount() - product.getAmount().amount());
-
-        repository.save(product);
-        return mapper.toDto(product);
+    public ResponseEntity<ResponseProductDto> update(@PathVariable String id, @Valid @RequestBody RequestProductDto dto) {
+        UpdateProductDto updateProductDto = mapper.toUpdateDto(id, dto);
+        ResponseProductDto response = productService.updateProduct(updateProductDto);
+        return ResponseEntity.ok(response);
     }
 
-    // TODO
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
-        Product product = repository.findById(new ProductId(id))
-                .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
-        repository.delete(product);
+    public void delete(@PathVariable String id) {
+        productService.deleteProduct(UUID.fromString(id));
     }
 }

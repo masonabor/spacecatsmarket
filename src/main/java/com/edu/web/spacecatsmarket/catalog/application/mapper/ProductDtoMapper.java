@@ -3,62 +3,84 @@ package com.edu.web.spacecatsmarket.catalog.application.mapper;
 import com.edu.web.spacecatsmarket.catalog.application.dto.CreateProductDto;
 import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
 import com.edu.web.spacecatsmarket.catalog.domain.*;
+import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.ERROR,
-        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
+@Named("applicationProductDtoMapper")
 public interface ProductDtoMapper {
 
-    @Mapping(target = "id", expression = "java(ProductId.newId())")
+    // ---- Create DTO -> Domain ----
+    @Mapping(target = "id", expression = "java(generateId())")
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "amount", source = "amount")
+    @Mapping(target = "price", source = "price")
+    @Mapping(target = "categories", ignore = true)
+    Product toDomain(CreateProductDto dto);
+
+    // ---- Update DTO -> Domain ----
+    @Mapping(target = "id", expression = "java(generateId())")
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "amount", source = "amount")
+    @Mapping(target = "price", source = "price")
+    @Mapping(target = "categories", ignore = true)
+    Product toDomain(UpdateProductDto dto);
+
+    // ---- Domain -> Response DTO ----
+    @Mapping(target = "id", source = "id")
     @Mapping(target = "name", source = "name")
     @Mapping(target = "description", source = "description")
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "price", source = "price")
     @Mapping(target = "categories", source = "categories")
-    Product toProduct(CreateProductDto createProductDto);
+    ResponseProductDto toResponseDto(Product product);
 
-    @Mapping(target = "id", expression = "id")
-    @Mapping(target = "name", source = "name")
-    @Mapping(target = "description", source = "description")
-    @Mapping(target = "amount", source = "amount")
-    @Mapping(target = "price", source = "price")
-    @Mapping(target = "categories", source = "categories")
-    Product toProduct(UpdateProductDto updateProductDto);
-
-    default ProductId mapToProductId(String id) {
-        return id == null ? null : new ProductId(UUID.fromString(id));
+    // ---- Helpers ----
+    default ProductId generateId() {
+        return ProductId.newId();
     }
 
-    // назва допоміжного методу має бути за таким прикладом: mapTo<цільовий об'єкт> (тут цільовий об'єкт - це ProductName в Product)
-    default ProductName mapToProductName(String name) {
-        return name == null ? null : new ProductName(name);
+    default ProductName map(String name) {
+        return new ProductName(name);
     }
 
-    default ProductAmount mapToProductAmount(Integer amount) {
-        return amount == null ? null : new ProductAmount(amount);
+    default ProductAmount map(Integer amount) {
+        return new ProductAmount(amount);
     }
 
-    default Price mapToPrice(Double price) {
-        return price == null ? null : new Price(price);
+    default Price map(Double price) {
+        return new Price(price);
     }
 
-//    default Set<Category> mapToCategories(Set<String> categories) {
-//        if (categories == null) {
-//            return null;
-//        }
-//
-//        return categories.stream()
-//                .filter(Objects::nonNull)
-//                .map(category -> new Category(category))
-//                .collect(Collectors.toSet());
-//    }
+    default String map(ProductName name) {
+        return name.name();
+    }
+
+    default String map(ProductAmount amount) {
+        return String.valueOf(amount.amount());
+    }
+
+    default Double map(Price price) {
+        return price.price();
+    }
+
+    default UUID map(ProductId id) {
+        return id.id();
+    }
+
+    default Set<String> mapToName(Set<Category> categories) {
+        return categories.stream()
+                .map(category -> category.getName().name())
+                .collect(Collectors.toSet());
+    }
 }

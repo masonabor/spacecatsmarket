@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -18,6 +19,10 @@ public class Product {
 
     @Builder.Default
     Set<Category> categories = new HashSet<>();
+
+    public void setId(UUID id) {
+        this.id = new ProductId(id);
+    }
 
     public void rename(String name) {
         this.name = new ProductName(name);
@@ -50,5 +55,9 @@ public class Product {
         Integer previousAmount = this.amount.amount();
         this.amount = new ProductAmount(previousAmount - amount);
         return this;
+    }
+
+    public void addCategories(Set<Category> categories) {
+        this.categories.addAll(categories);
     }
 }
