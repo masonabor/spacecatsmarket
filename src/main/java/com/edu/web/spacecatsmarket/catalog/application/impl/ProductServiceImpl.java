@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
 
     // TODO optimization
     @Override
-    public ResponseProductDto createProduct(@Valid CreateProductDto createProductDto) {
+    public ResponseProductDto createProduct(CreateProductDto createProductDto) {
         Product product = mapper.toDomain(createProductDto);
         product.addCategories(fromNameToCategory(createProductDto.categories()));
         productRepository.save(product);
@@ -47,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseProductDto updateProduct(@Valid UpdateProductDto updateProductDto) {
         Product product = mapper.toDomain(updateProductDto);
+        product.addCategories(fromNameToCategory(updateProductDto.categories()));
         productRepository.save(product);
         log.info("Product with id {} updated", product.getId());
         return mapper.toResponseDto(product);

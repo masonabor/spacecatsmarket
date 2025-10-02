@@ -1,13 +1,12 @@
 package com.edu.web.spacecatsmarket.dto.product;
 
-import com.edu.web.spacecatsmarket.catalog.domain.Category;
-import com.edu.web.spacecatsmarket.validation.CosmicWordCheck;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.Set;
 
+@Builder
+@Jacksonized
 public record ResponseProductDto(
         String id,
         String name,

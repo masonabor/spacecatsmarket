@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @Named("applicationProductDtoMapper")
 public interface ProductDtoMapper {
 
-    // ---- Create DTO -> Domain ----
     @Mapping(target = "id", expression = "java(generateId())")
     @Mapping(target = "name", source = "name")
     @Mapping(target = "amount", source = "amount")
@@ -28,15 +27,13 @@ public interface ProductDtoMapper {
     @Mapping(target = "categories", ignore = true)
     Product toDomain(CreateProductDto dto);
 
-    // ---- Update DTO -> Domain ----
-    @Mapping(target = "id", expression = "java(generateId())")
+    @Mapping(target = "id", expression = "java(mapToProductId(dto.id()))")
     @Mapping(target = "name", source = "name")
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "price", source = "price")
     @Mapping(target = "categories", ignore = true)
     Product toDomain(UpdateProductDto dto);
 
-    // ---- Domain -> Response DTO ----
     @Mapping(target = "id", source = "id")
     @Mapping(target = "name", source = "name")
     @Mapping(target = "description", source = "description")
@@ -45,9 +42,12 @@ public interface ProductDtoMapper {
     @Mapping(target = "categories", source = "categories")
     ResponseProductDto toResponseDto(Product product);
 
-    // ---- Helpers ----
     default ProductId generateId() {
         return ProductId.newId();
+    }
+
+    default ProductId mapToProductId(String id) {
+        return new ProductId(UUID.fromString(id));
     }
 
     default ProductName map(String name) {

@@ -5,6 +5,7 @@ import com.edu.web.spacecatsmarket.catalog.domain.Product;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductId;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductRepository;
 import com.edu.web.spacecatsmarket.exceptions.ProductNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 
 @Repository
+@Slf4j
 public class InMemoryProductRepositoryImpl implements ProductRepository {
 
     private static final HashMap<ProductId, Product> products = new HashMap<>();
@@ -21,6 +23,7 @@ public class InMemoryProductRepositoryImpl implements ProductRepository {
     @Override
     public void save(Product product) {
         if (products.containsKey(product.getId())) {
+            log.warn("Product with id {} already exists", product.getId());
             products.replace(product.getId(), product);
             return;
         }
