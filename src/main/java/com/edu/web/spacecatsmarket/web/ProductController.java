@@ -3,10 +3,9 @@ package com.edu.web.spacecatsmarket.web;
 import com.edu.web.spacecatsmarket.catalog.application.ProductCatalogService;
 import com.edu.web.spacecatsmarket.catalog.application.ProductService;
 import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
-import com.edu.web.spacecatsmarket.catalog.domain.*;
 import com.edu.web.spacecatsmarket.dto.product.RequestProductDto;
 import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
-import com.edu.web.spacecatsmarket.exceptions.ProductNotFoundException;
+import com.edu.web.spacecatsmarket.web.mapper.ProductDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -33,13 +31,12 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseProductDto> getById(@PathVariable String id) {
-        ResponseProductDto response = Optional.of(productCatalogService.getById(UUID.fromString(id)))
-                .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
+    public ResponseEntity<ResponseProductDto> getById(@PathVariable UUID id) { // автоматичний парсинг через ConversionService (працює з багатьма типами та dto)
+        ResponseProductDto response = productCatalogService.getById(id);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ResponseProductDto> create(@Valid @RequestBody RequestProductDto dto) {
         ResponseProductDto response = productService.createProduct(mapper.toCreateDto(dto));
         return ResponseEntity.ok(response);
@@ -53,7 +50,8 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable String id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         productService.deleteProduct(UUID.fromString(id));
+        return ResponseEntity.noContent().build(); // можна кидати таке при видаленні
     }
 }

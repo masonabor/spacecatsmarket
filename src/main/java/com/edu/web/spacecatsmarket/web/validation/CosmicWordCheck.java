@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.validation;
+package com.edu.web.spacecatsmarket.web.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

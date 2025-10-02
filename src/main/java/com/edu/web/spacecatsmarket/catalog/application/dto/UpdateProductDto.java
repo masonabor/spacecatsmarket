@@ -1,7 +1,6 @@
 package com.edu.web.spacecatsmarket.catalog.application.dto;
 
-import com.edu.web.spacecatsmarket.catalog.domain.Category;
-import com.edu.web.spacecatsmarket.validation.CosmicWordCheck;
+import com.edu.web.spacecatsmarket.web.validation.CosmicWordCheck;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

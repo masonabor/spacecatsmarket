@@ -1,6 +1,7 @@
-package com.edu.web.spacecatsmarket.exceptions;
+package com.edu.web.spacecatsmarket.web;
 
 
+import com.edu.web.spacecatsmarket.exceptions.ProductNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;

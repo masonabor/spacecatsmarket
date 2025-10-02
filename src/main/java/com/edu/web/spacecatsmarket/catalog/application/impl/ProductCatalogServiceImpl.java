@@ -26,7 +26,7 @@ public class ProductCatalogServiceImpl implements ProductCatalogService {
     public ResponseProductDto getById(UUID id) {
         return mapper.toResponseDto(productRepository.findById(new ProductId(id)).orElseThrow(() -> {
             log.info("Product with id {} not found", id);
-            return new ProductNotFoundException("product not found");
+            return new ProductNotFoundException("Product with id " + id + " not found");
         }));
     }
 
