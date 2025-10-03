@@ -1,17 +1,16 @@
 package com.edu.web.spacecatsmarket.catalog.application.impl;
 
 import com.edu.web.spacecatsmarket.catalog.application.ProductService;
+import com.edu.web.spacecatsmarket.catalog.application.exceptions.ProductAlreadyExistException;
 import com.edu.web.spacecatsmarket.catalog.application.mapper.ProductDtoMapper;
 import com.edu.web.spacecatsmarket.catalog.domain.*;
 import com.edu.web.spacecatsmarket.catalog.application.dto.CreateProductDto;
 import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
 import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
-import com.edu.web.spacecatsmarket.exceptions.ProductNotFoundException;
-import jakarta.validation.Valid;
+import com.edu.web.spacecatsmarket.catalog.application.exceptions.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-@Validated
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
@@ -28,9 +26,11 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDtoMapper mapper;
     private final CategoryRepository categoryRepository;
 
-    // TODO optimization
     @Override
     public ResponseProductDto createProduct(CreateProductDto createProductDto) {
+        if (productRepository.existByName(new ProductName(createProductDto.name()))) {
+            throw new ProductAlreadyExistException("Product with name " + createProductDto.name() + " already exists");
+        }
         Product product = mapper.toDomain(createProductDto);
         product.addCategories(fromNameToCategory(createProductDto.categories()));
         productRepository.save(product);
@@ -45,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseProductDto updateProduct(@Valid UpdateProductDto updateProductDto) {
+    public ResponseProductDto updateProduct(UpdateProductDto updateProductDto) {
         Product product = mapper.toDomain(updateProductDto);
         product.addCategories(fromNameToCategory(updateProductDto.categories()));
         productRepository.save(product);
@@ -53,6 +53,7 @@ public class ProductServiceImpl implements ProductService {
         return mapper.toResponseDto(product);
     }
 
+    // TODO optimization
     private Set<Category> fromNameToCategory(Set<String> categories) {
         Set<Category> productCategories = new HashSet<>();
 

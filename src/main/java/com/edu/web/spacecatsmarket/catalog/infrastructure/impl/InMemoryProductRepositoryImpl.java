@@ -1,10 +1,7 @@
 package com.edu.web.spacecatsmarket.catalog.infrastructure.impl;
 
-import com.edu.web.spacecatsmarket.catalog.domain.Category;
-import com.edu.web.spacecatsmarket.catalog.domain.Product;
-import com.edu.web.spacecatsmarket.catalog.domain.ProductId;
-import com.edu.web.spacecatsmarket.catalog.domain.ProductRepository;
-import com.edu.web.spacecatsmarket.exceptions.ProductNotFoundException;
+import com.edu.web.spacecatsmarket.catalog.domain.*;
+import com.edu.web.spacecatsmarket.catalog.application.exceptions.ProductNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -46,6 +43,12 @@ public class InMemoryProductRepositoryImpl implements ProductRepository {
             throw new ProductNotFoundException("product with id " + id + " not found");
         }
         products.remove(id);
+    }
+
+    @Override
+    public boolean existByName(ProductName productName) {
+        return products.values().stream()
+                .anyMatch(product -> product.getName().equals(productName));
     }
 
     // TODO

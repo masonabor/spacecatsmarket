@@ -2,8 +2,9 @@ package com.edu.web.spacecatsmarket.catalog.infrastructure.impl;
 
 import com.edu.web.spacecatsmarket.catalog.domain.Category;
 import com.edu.web.spacecatsmarket.catalog.domain.CategoryId;
+import com.edu.web.spacecatsmarket.catalog.domain.CategoryName;
 import com.edu.web.spacecatsmarket.catalog.domain.CategoryRepository;
-import com.edu.web.spacecatsmarket.exceptions.CategoryNotFoundException;
+import com.edu.web.spacecatsmarket.catalog.application.exceptions.CategoryNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -34,5 +35,11 @@ public class InMemoryCategoryRepository implements CategoryRepository {
     @Override
     public List<Category> findAll() {
         return new ArrayList<>(categories.values());
+    }
+
+    @Override
+    public boolean existsByName(CategoryName categoryName) {
+        return categories.values().stream()
+                .anyMatch(category -> category.getName().equals(categoryName));
     }
 }

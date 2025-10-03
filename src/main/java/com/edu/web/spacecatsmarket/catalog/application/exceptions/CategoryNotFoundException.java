@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.exceptions;
+package com.edu.web.spacecatsmarket.catalog.application.exceptions;
 
 public class CategoryNotFoundException extends RuntimeException {
     public CategoryNotFoundException(String message) {

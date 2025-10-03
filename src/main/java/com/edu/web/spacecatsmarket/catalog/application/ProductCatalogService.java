@@ -1,6 +1,5 @@
 package com.edu.web.spacecatsmarket.catalog.application;
 
-import com.edu.web.spacecatsmarket.catalog.domain.Product;
 import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
 
 import java.util.List;

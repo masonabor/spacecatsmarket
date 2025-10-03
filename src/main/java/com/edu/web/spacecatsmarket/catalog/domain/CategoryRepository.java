@@ -9,4 +9,5 @@ public interface CategoryRepository {
     void delete(CategoryId categoryId);
     Optional<Category> findById(CategoryId categoryId);
     List<Category> findAll();
+    boolean existsByName(CategoryName categoryName);
 }

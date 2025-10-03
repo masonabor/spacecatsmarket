@@ -3,13 +3,13 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:8080
+- url: http://localhost:8088
   description: Generated server url
 paths:
   /api/products/{id}:
     get:
       tags:
-      - product-controller
+      - Products
       operationId: getById
       parameters:
       - name: id
@@ -24,7 +24,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/RequestProductDto"
+                $ref: "#/components/schemas/ResponseProductDto"
     put:
       tags:
       - product-controller
