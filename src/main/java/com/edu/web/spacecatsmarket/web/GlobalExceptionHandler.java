@@ -69,8 +69,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
         List<FieldError> errors = ex.getBindingResult().getFieldErrors();
-        List<ParamsViolationDetails> validationResponse =
-                errors.stream().map(err -> ParamsViolationDetails.builder().fieldName(err.getField()).reason(err.getDefaultMessage()).build()).toList();
+        List<ParamsViolationDetails> validationResponse = errors.stream()
+                .map(err -> ParamsViolationDetails.builder()
+                        .fieldName(err.getField())
+                        .reason(err.getDefaultMessage()).build())
+                        .toList();
+
         log.warn("Input params validation failed");
         return ResponseEntity.badRequest().body(getValidationErrorsProblemDetail(validationResponse));
     }
