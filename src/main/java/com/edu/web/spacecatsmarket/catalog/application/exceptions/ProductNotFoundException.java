@@ -1,8 +1,6 @@
 package com.edu.web.spacecatsmarket.catalog.application.exceptions;
 
-public class ProductNotFoundException extends RuntimeException {
+import lombok.experimental.StandardException;
 
-    public ProductNotFoundException(String message) {
-        super(message);
-    }
-}
+@StandardException
+public class ProductNotFoundException extends RuntimeException {}

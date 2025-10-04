@@ -1,7 +1,6 @@
 package com.edu.web.spacecatsmarket.catalog.application.exceptions;
 
-public class CategoryAlreadyExistException extends RuntimeException {
-    public CategoryAlreadyExistException(String message) {
-        super(message);
-    }
-}
+import lombok.experimental.StandardException;
+
+@StandardException
+public class CategoryAlreadyExistException extends RuntimeException {}

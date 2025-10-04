@@ -46,6 +46,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseProductDto updateProduct(UpdateProductDto updateProductDto) {
+        if (productRepository.existByName(new ProductName(updateProductDto.name()))) {
+            throw new ProductAlreadyExistException("Product with name " + updateProductDto.name() + " already exists");
+        }
         Product product = mapper.toDomain(updateProductDto);
         product.addCategories(fromNameToCategory(updateProductDto.categories()));
         productRepository.save(product);
