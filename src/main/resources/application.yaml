@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: spacecatsmarket
+  docker:
+    compose:
+      enabled: false
+
+server:
+  port: 8088

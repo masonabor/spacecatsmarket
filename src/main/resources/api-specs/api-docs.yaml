@@ -1,0 +1,314 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8088
+  description: Generated server url
+paths:
+  /api/v1/products:
+    post:
+      tags:
+        - Products
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestProductDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RequestProductDto"
+        "400":
+          description: "Validation error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetail'
+              example:
+                type: "urn:problem-type:validation-error"
+                title: "Field Validation Exception"
+                status: 400
+                detail: "Request validation failed"
+                instance: "/api/v1/products"
+                invalidParams:
+                  fieldName: "name"
+                  reason: "Name should contain words: (star, galaxy, comet)"
+
+    get:
+      tags:
+        - Products
+      operationId: getAll
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RequestProductDto"
+
+  /api/v1/products/{id}:
+    get:
+      tags:
+      - Products
+      operationId: getById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ResponseProductDto"
+
+    put:
+      tags:
+      - Products
+      operationId: update
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestProductDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RequestProductDto"
+        "409":
+          description: "Product already exist"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                ProductAlreadyExist:
+                  summary: "Product already exist"
+                  value:
+                    type: "product-already-exist"
+                    title: "Product already exist"
+                    status: 409
+                    detail: "Product with name {productName} already exists"
+                    instance: "/api/v1/products"
+
+    delete:
+      tags:
+      - Products
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Product not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                ProductNotFound:
+                  summary: "Product not found"
+                  value:
+                    type: "product-not-found"
+                    title: "Product not found"
+                    status: 404
+                    detail: "Product with id {productId} not found"
+                    instance: "/api/v1/products"
+
+  /api/v1/categories:
+    post:
+      tags:
+        - Categories
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestCategoryDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ResponseCategoryDto"
+        "400":
+          description: "Validation error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetail'
+              example:
+                type: "urn:problem-type:validation-error"
+                title: "Field Validation Exception"
+                status: 400
+                detail: "Request validation failed"
+                instance: "/api/v1/products"
+                invalidParams:
+                  fieldName: "name"
+                  reason: "Name must not be empty"
+
+    get:
+      tags:
+        - Categories
+      operationId: getAll
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ResponseCategoryDto"
+
+components:
+  schemas:
+
+    RequestProductDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        amount:
+          type: integer
+          format: int32
+          minimum: 0
+        price:
+          type: number
+          format: double
+          minimum: 0
+      required:
+        - name
+        - description
+        - amount
+        - price
+
+    ResponseProductDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        amount:
+          type: integer
+          format: int32
+        price:
+          type: number
+          format: double
+        categories:
+          type: set<string>
+      required:
+        - name
+        - description
+        - amount
+        - price
+
+    RequestCategoryDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+      required:
+        - name
+
+    ResponseCategoryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - name
+
+    ProblemDetail:
+      description: "RFC 9457 Problem Details response"
+      type: object
+      properties:
+        type:
+          type: string
+          example: "product-already-exist"
+        title:
+          type: string
+          example: "Product already exist"
+        status:
+          type: integer
+          example: 409
+        detail:
+          type: string
+          example: "Product with name ProductStar already exists"
+        instance:
+          type: string
+          example: "/api/v1/products"
+
+    InvalidParam:
+      type: object
+      description: "Describes a single invalid field in request validation errors"
+      properties:
+        fieldName:
+          type: string
+          example: "name"
+        reason:
+          type: string
+          example: "Name should contain words: (star, galaxy, comet)"
+
+    ValidationProblemDetail:
+      description: "Problem Details response for validation errors"
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetail'
+        - type: object
+          properties:
+            invalidParams:
+              type: array
+              description: "List of invalid parameters causing the validation error"
+              items:
+                $ref: '#/components/schemas/InvalidParam'
+          example:
+            type: "urn:problem-type:validation-error"
+            title: "Field Validation Exception"
+            status: 400
+            detail: "Request validation failed"
+            instance: "/api/v1/products"
+            invalidParams:
+              fieldName: "name"
+              reason: "Name should contain words: (star, galaxy, comet)"
