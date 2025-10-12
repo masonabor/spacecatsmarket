@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.web;
+package com.edu.web.spacecatsmarket.web.controller;
 
 
 import com.edu.web.spacecatsmarket.catalog.application.exceptions.CategoryAlreadyExistException;

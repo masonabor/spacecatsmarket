@@ -2,7 +2,7 @@ package com.edu.web.spacecatsmarket.web.mapper;
 
 import com.edu.web.spacecatsmarket.catalog.application.dto.CreateProductDto;
 import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
-import com.edu.web.spacecatsmarket.dto.product.RequestProductDto;
+import com.edu.web.spacecatsmarket.web.dto.product.RequestProductDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

@@ -1,12 +1,12 @@
 package com.edu.web.spacecatsmarket.catalog.application.impl;
 
-import com.edu.web.spacecatsmarket.catalog.application.ProductService;
+import com.edu.web.spacecatsmarket.catalog.application.service.ProductService;
 import com.edu.web.spacecatsmarket.catalog.application.exceptions.ProductAlreadyExistException;
 import com.edu.web.spacecatsmarket.catalog.application.mapper.ProductDtoMapper;
 import com.edu.web.spacecatsmarket.catalog.domain.*;
 import com.edu.web.spacecatsmarket.catalog.application.dto.CreateProductDto;
 import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
-import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
+import com.edu.web.spacecatsmarket.web.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.catalog.application.exceptions.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,13 +63,13 @@ public class ProductServiceImpl implements ProductService {
         List<Category> existsCategories = categoryRepository.findAll();
 
         List<String> existsCategoriesNames= existsCategories.stream()
-                .map(category -> category.getName().name())
+                .map(category -> category.name().name())
                 .toList();
 
         for (String name : categories) {
             if (existsCategoriesNames.contains(name))
                 productCategories.add(existsCategories.stream().
-                        filter(category -> category.getName().name().equals(name))
+                        filter(category -> category.name().name().equals(name))
                         .findFirst()
                         .orElseThrow());
         }

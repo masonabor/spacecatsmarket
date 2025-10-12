@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.ordering.domain.payment;
+package com.edu.web.spacecatsmarket.ordering.payment;
 
 import lombok.Builder;
 import lombok.Value;

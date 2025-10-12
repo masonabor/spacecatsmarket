@@ -1,8 +1,8 @@
-package com.edu.web.spacecatsmarket.catalog.application;
+package com.edu.web.spacecatsmarket.catalog.application.service;
 
 import com.edu.web.spacecatsmarket.catalog.application.dto.CreateProductDto;
 import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
-import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
+import com.edu.web.spacecatsmarket.web.dto.product.ResponseProductDto;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 

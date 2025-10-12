@@ -1,6 +1,6 @@
-package com.edu.web.spacecatsmarket.catalog.application;
+package com.edu.web.spacecatsmarket.catalog.application.service;
 
-import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
+import com.edu.web.spacecatsmarket.web.dto.product.ResponseProductDto;
 
 import java.util.List;
 import java.util.UUID;

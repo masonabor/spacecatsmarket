@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.ordering.domain.order;
+package com.edu.web.spacecatsmarket.ordering.order;
 
 import com.edu.web.spacecatsmarket.ordering.domain.CustomerDetailsId;
 import lombok.Builder;

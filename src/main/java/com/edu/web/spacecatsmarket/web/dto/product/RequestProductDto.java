@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.dto.product;
+package com.edu.web.spacecatsmarket.web.dto.product;
 
 import com.edu.web.spacecatsmarket.web.validation.CosmicWordCheck;
 import jakarta.validation.constraints.Min;

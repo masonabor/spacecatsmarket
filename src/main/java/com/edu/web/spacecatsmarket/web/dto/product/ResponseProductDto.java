@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.dto.product;
+package com.edu.web.spacecatsmarket.web.dto.product;
 
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;

@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.dto.category;
+package com.edu.web.spacecatsmarket.web.dto.category;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;

@@ -15,21 +15,22 @@ public class InMemoryCategoryRepository implements CategoryRepository {
     private static final Map<CategoryId, Category> categories = new HashMap<>();
 
     @Override
-    public void save(Category category) {
-        categories.put(category.getId(), category);
+    public Category save(Category category) {
+        categories.put(category.id(), category);
+        return category;
     }
 
     @Override
-    public void delete(CategoryId categoryId) {
+    public void deleteById(CategoryId categoryId) {
         if (!categories.containsKey(categoryId)) {
-            throw new CategoryNotFoundException("category with id " + categoryId + " not found");
+            throw new CategoryNotFoundException("Category with id " + categoryId + " not found");
         }
         categories.remove(categoryId);
     }
 
     @Override
     public Optional<Category> findById(CategoryId categoryId) {
-        return Optional.of(categories.get(categoryId));
+        return Optional.ofNullable(categories.get(categoryId));
     }
 
     @Override
@@ -38,8 +39,14 @@ public class InMemoryCategoryRepository implements CategoryRepository {
     }
 
     @Override
-    public boolean existsByName(CategoryName categoryName) {
+    public Optional<Category> findByName(CategoryName categoryName) {
         return categories.values().stream()
-                .anyMatch(category -> category.getName().equals(categoryName));
+                .filter(category -> category.name().equals(categoryName))
+                .findFirst();
+    }
+
+    @Override
+    public boolean existsById(CategoryId categoryId) {
+        return categories.containsKey(categoryId);
     }
 }

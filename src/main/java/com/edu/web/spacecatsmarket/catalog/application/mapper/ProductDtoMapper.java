@@ -3,7 +3,7 @@ package com.edu.web.spacecatsmarket.catalog.application.mapper;
 import com.edu.web.spacecatsmarket.catalog.application.dto.CreateProductDto;
 import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
 import com.edu.web.spacecatsmarket.catalog.domain.*;
-import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
+import com.edu.web.spacecatsmarket.web.dto.product.ResponseProductDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -78,9 +78,9 @@ public interface ProductDtoMapper {
         return id.id();
     }
 
-    default Set<String> mapToName(Set<Category> categories) {
+    default Set<CategoryName> mapToName(Set<Category> categories) {
         return categories.stream()
-                .map(category -> category.getName().name())
+                .map(Category::getName)
                 .collect(Collectors.toSet());
     }
 }

@@ -1,217 +1,285 @@
 openapi: 3.1.0
 info:
-  title: OpenAPI definition
-  version: v0
+  title: SpaceCats Market API
+  version: v1.0
+  description: API for managing cosmic products and their categories in the SpaceCats Market.
 servers:
-- url: http://localhost:8088
-  description: Generated server url
+  - url: http://localhost:8088
+    description: Local Development Server
 paths:
   /api/v1/products:
     post:
       tags:
         - Products
-      operationId: create
+      summary: Create a new product
+      operationId: createProduct
       requestBody:
+        description: Product data to create.
+        required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/RequestProductDto"
-        required: true
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Product created successfully. Returns the newly created product.
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: "#/components/schemas/RequestProductDto"
+                $ref: "#/components/schemas/ResponseProductDto"
         "400":
-          description: "Validation error"
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ValidationProblemDetail'
-              example:
-                type: "urn:problem-type:validation-error"
-                title: "Field Validation Exception"
-                status: 400
-                detail: "Request validation failed"
-                instance: "/api/v1/products"
-                invalidParams:
-                  fieldName: "name"
-                  reason: "Name should contain words: (star, galaxy, comet)"
-
+          $ref: '#/components/responses/BadRequest'
+        "409":
+          $ref: '#/components/responses/ProductAlreadyExist'
     get:
       tags:
         - Products
-      operationId: getAll
+      summary: Get all products
+      operationId: getAllProducts
       responses:
         "200":
-          description: OK
+          description: A list of all products.
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RequestProductDto"
+                  $ref: "#/components/schemas/ResponseProductDto"
 
   /api/v1/products/{id}:
     get:
       tags:
-      - Products
-      operationId: getById
+        - Products
+      summary: Get a product by its ID
+      operationId: getProductById
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - name: id
+          in: path
+          required: true
+          description: The UUID of the product.
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
-          description: OK
+          description: The requested product.
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ResponseProductDto"
-
+        "404":
+          $ref: '#/components/responses/ProductNotFound'
     put:
       tags:
-      - Products
-      operationId: update
+        - Products
+      summary: Update an existing product
+      operationId: updateProduct
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - name: id
+          in: path
+          required: true
+          description: The UUID of the product to update.
+          schema:
+            type: string
+            format: uuid
       requestBody:
+        description: New data for the product.
+        required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/RequestProductDto"
-        required: true
       responses:
         "200":
-          description: OK
+          description: Product updated successfully. Returns the updated product.
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: "#/components/schemas/RequestProductDto"
+                $ref: "#/components/schemas/ResponseProductDto"
+        "404":
+          $ref: '#/components/responses/ProductNotFound'
         "409":
-          description: "Product already exist"
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
-              examples:
-                ProductAlreadyExist:
-                  summary: "Product already exist"
-                  value:
-                    type: "product-already-exist"
-                    title: "Product already exist"
-                    status: 409
-                    detail: "Product with name {productName} already exists"
-                    instance: "/api/v1/products"
-
+          $ref: '#/components/responses/ProductAlreadyExist'
     delete:
       tags:
-      - Products
-      operationId: delete
+        - Products
+      summary: Delete a product
+      operationId: deleteProduct
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - name: id
+          in: path
+          required: true
+          description: The UUID of the product to delete.
+          schema:
+            type: string
+            format: uuid
       responses:
-        "200":
-          description: OK
+        "204":
+          description: Product deleted successfully.
         "404":
-          description: Product not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
-              examples:
-                ProductNotFound:
-                  summary: "Product not found"
-                  value:
-                    type: "product-not-found"
-                    title: "Product not found"
-                    status: 404
-                    detail: "Product with id {productId} not found"
-                    instance: "/api/v1/products"
+          $ref: '#/components/responses/ProductNotFound'
 
   /api/v1/categories:
     post:
       tags:
         - Categories
-      operationId: create
+      summary: Create a new category
+      operationId: createCategory
       requestBody:
+        description: Category data to create.
+        required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/RequestCategoryDto"
-        required: true
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Category created successfully.
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ResponseCategoryDto"
         "400":
-          description: "Validation error"
+          $ref: '#/components/responses/BadRequest'
+        "409":
+          description: "Category already exists"
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ValidationProblemDetail'
-              example:
-                type: "urn:problem-type:validation-error"
-                title: "Field Validation Exception"
-                status: 400
-                detail: "Request validation failed"
-                instance: "/api/v1/products"
-                invalidParams:
-                  fieldName: "name"
-                  reason: "Name must not be empty"
-
+                $ref: '#/components/schemas/ProblemDetail'
     get:
       tags:
         - Categories
-      operationId: getAll
+      summary: Get all categories
+      operationId: getAllCategories
       responses:
         "200":
-          description: OK
+          description: A list of all categories.
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/ResponseCategoryDto"
 
+  /api/v1/categories/{id}:
+    get:
+      tags:
+        - Categories
+      summary: Get a category by its ID
+      operationId: getCategoryById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The UUID of the category.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The requested category.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseCategoryDto"
+        "404":
+          description: "Category not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    put:
+      tags:
+        - Categories
+      summary: Update an existing category
+      operationId: updateCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The UUID of the category to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: New data for the category.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestCategoryDto"
+      responses:
+        "200":
+          description: Category updated successfully. Returns the updated category.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseCategoryDto"
+        "404":
+          description: "Category not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        "409":
+          description: "Category already exists"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+        - Categories
+      summary: Delete a category
+      operationId: deleteCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The UUID of the category to delete.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Category deleted successfully.
+        "404":
+          description: "Category not found"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
 components:
   schemas:
-
     RequestProductDto:
       type: object
+      description: "Data required to create or update a product."
       properties:
         name:
           type: string
           minLength: 1
+          example: "Cosmic Starship"
         description:
           type: string
           minLength: 1
+          example: "A brand new starship model."
         amount:
           type: integer
           format: int32
           minimum: 0
+          example: 10
         price:
           type: number
           format: double
           minimum: 0
+          example: 999.99
+        categories:
+          type: array
+          items:
+            type: string
+          example: ["starships", "new arrivals"]
       required:
         - name
         - description
@@ -220,22 +288,33 @@ components:
 
     ResponseProductDto:
       type: object
+      description: "Represents a product with all its details."
       properties:
         id:
           type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
         name:
           type: string
+          example: "Cosmic Starship"
         description:
           type: string
+          example: "A brand new starship model."
         amount:
           type: integer
           format: int32
+          example: 10
         price:
           type: number
           format: double
+          example: 999.99
         categories:
-          type: set<string>
+          type: array
+          items:
+            type: string
+          example: ["starships", "new arrivals"]
       required:
+        - id
         - name
         - description
         - amount
@@ -243,72 +322,106 @@ components:
 
     RequestCategoryDto:
       type: object
+      description: "Data required to create or update a category."
       properties:
         name:
           type: string
           minLength: 1
+          example: "Starships"
       required:
         - name
 
     ResponseCategoryDto:
       type: object
+      description: "Represents a category with its ID and name."
       properties:
         id:
           type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
         name:
           type: string
+          example: "Starships"
       required:
         - id
         - name
 
     ProblemDetail:
-      description: "RFC 9457 Problem Details response"
+      description: "RFC 9457 Problem Details for HTTP APIs."
       type: object
       properties:
         type:
           type: string
-          example: "product-already-exist"
+          description: "A URI reference that identifies the problem type."
+          example: "/errors/product-not-found"
         title:
           type: string
-          example: "Product already exist"
+          description: "A short, human-readable summary of the problem type."
+          example: "Product Not Found"
         status:
           type: integer
-          example: 409
+          description: "The HTTP status code."
+          example: 404
         detail:
           type: string
-          example: "Product with name ProductStar already exists"
+          description: "A human-readable explanation specific to this occurrence of the problem."
+          example: "Product with id 123e4567-e89b-12d3-a456-426614174000 not found."
         instance:
           type: string
-          example: "/api/v1/products"
+          description: "A URI reference that identifies the specific occurrence of the problem."
+          example: "/api/v1/products/123e4567-e89b-12d3-a456-426614174000"
 
     InvalidParam:
       type: object
-      description: "Describes a single invalid field in request validation errors"
+      description: "Describes a single invalid field in a validation error."
       properties:
         fieldName:
           type: string
           example: "name"
         reason:
           type: string
-          example: "Name should contain words: (star, galaxy, comet)"
+          example: "Name must not be blank and should contain a cosmic word."
 
     ValidationProblemDetail:
-      description: "Problem Details response for validation errors"
+      description: "Problem Details for validation errors."
       allOf:
         - $ref: '#/components/schemas/ProblemDetail'
         - type: object
           properties:
             invalidParams:
               type: array
-              description: "List of invalid parameters causing the validation error"
+              description: "A list of fields that failed validation."
               items:
                 $ref: '#/components/schemas/InvalidParam'
-          example:
-            type: "urn:problem-type:validation-error"
-            title: "Field Validation Exception"
-            status: 400
-            detail: "Request validation failed"
-            instance: "/api/v1/products"
-            invalidParams:
-              fieldName: "name"
-              reason: "Name should contain words: (star, galaxy, comet)"
+
+  responses:
+    BadRequest:
+      description: "The request is invalid."
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ValidationProblemDetail'
+    ProductNotFound:
+      description: "The specified product was not found."
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+            example:
+              type: "/errors/product-not-found"
+              title: "Product Not Found"
+              status: 404
+              detail: "Product with id 123e4567-e89b-12d3-a456-426614174000 not found."
+              instance: "/api/v1/products/123e4567-e89b-12d3-a456-426614174000"
+    ProductAlreadyExist:
+      description: "A product with the same name already exists."
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+            example:
+              type: "/errors/product-already-exist"
+              title: "Product Already Exists"
+              status: 409
+              detail: "A product with the name 'Cosmic Starship' already exists."
+              instance: "/api/v1/products"

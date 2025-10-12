@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.ordering;
+package com.edu.web.spacecatsmarket.ordering.domain;
 
 import com.edu.web.spacecatsmarket.common.CommunicationChannel;
 import lombok.Builder;

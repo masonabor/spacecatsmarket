@@ -1,5 +1,6 @@
 package com.edu.web.spacecatsmarket.catalog.domain;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.util.Assert;
 
 import java.util.UUID;

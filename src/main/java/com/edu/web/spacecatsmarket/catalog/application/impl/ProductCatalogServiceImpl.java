@@ -1,11 +1,11 @@
 package com.edu.web.spacecatsmarket.catalog.application.impl;
 
-import com.edu.web.spacecatsmarket.catalog.application.ProductCatalogService;
+import com.edu.web.spacecatsmarket.catalog.application.service.ProductCatalogService;
 import com.edu.web.spacecatsmarket.catalog.application.mapper.ProductDtoMapper;
 import com.edu.web.spacecatsmarket.catalog.domain.Product;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductId;
 import com.edu.web.spacecatsmarket.catalog.domain.ProductRepository;
-import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
+import com.edu.web.spacecatsmarket.web.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.catalog.application.exceptions.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

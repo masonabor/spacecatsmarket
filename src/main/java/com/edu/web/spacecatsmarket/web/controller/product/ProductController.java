@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.web.controller;
+package com.edu.web.spacecatsmarket.web.controller.product;
 
 import com.edu.web.spacecatsmarket.catalog.application.service.ProductCatalogService;
 import com.edu.web.spacecatsmarket.catalog.application.service.ProductService;
