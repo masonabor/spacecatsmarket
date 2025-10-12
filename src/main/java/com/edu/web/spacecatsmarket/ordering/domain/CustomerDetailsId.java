@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket.ordering.domain;
+package com.edu.web.spacecatsmarket.ordering;
 
 import org.springframework.util.Assert;
 

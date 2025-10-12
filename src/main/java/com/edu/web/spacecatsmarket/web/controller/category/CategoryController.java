@@ -1,6 +1,6 @@
-package com.edu.web.spacecatsmarket.web;
+package com.edu.web.spacecatsmarket.web.controller;
 
-import com.edu.web.spacecatsmarket.catalog.application.CategoryService;
+import com.edu.web.spacecatsmarket.catalog.application.service.CategoryService;
 import com.edu.web.spacecatsmarket.dto.category.RequestCategoryDto;
 import com.edu.web.spacecatsmarket.dto.category.ResponseCategoryDto;
 import com.edu.web.spacecatsmarket.web.mapper.CategoryDtoMapper;

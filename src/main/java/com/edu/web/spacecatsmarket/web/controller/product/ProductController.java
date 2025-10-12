@@ -1,10 +1,10 @@
-package com.edu.web.spacecatsmarket.web;
+package com.edu.web.spacecatsmarket.web.controller;
 
-import com.edu.web.spacecatsmarket.catalog.application.ProductCatalogService;
-import com.edu.web.spacecatsmarket.catalog.application.ProductService;
+import com.edu.web.spacecatsmarket.catalog.application.service.ProductCatalogService;
+import com.edu.web.spacecatsmarket.catalog.application.service.ProductService;
 import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
-import com.edu.web.spacecatsmarket.dto.product.RequestProductDto;
-import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
+import com.edu.web.spacecatsmarket.web.dto.product.RequestProductDto;
+import com.edu.web.spacecatsmarket.web.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.web.mapper.ProductDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
