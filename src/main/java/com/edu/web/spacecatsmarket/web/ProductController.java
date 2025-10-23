@@ -1,11 +1,12 @@
 package com.edu.web.spacecatsmarket.web;
 
-import com.edu.web.spacecatsmarket.catalog.application.ProductCatalogService;
-import com.edu.web.spacecatsmarket.catalog.application.ProductService;
-import com.edu.web.spacecatsmarket.catalog.application.dto.UpdateProductDto;
-import com.edu.web.spacecatsmarket.dto.product.RequestProductDto;
+import com.edu.web.spacecatsmarket.dto.category.UpdateCategoryRequestDto;
+import com.edu.web.spacecatsmarket.dto.product.CreateProductRequestDto;
+import com.edu.web.spacecatsmarket.dto.product.UpdateProductRequestDto;
+import com.edu.web.spacecatsmarket.service.ProductCatalogService;
+import com.edu.web.spacecatsmarket.service.ProductService;
 import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
-import com.edu.web.spacecatsmarket.web.mapper.ProductDtoMapper;
+import com.edu.web.spacecatsmarket.service.mapper.ProductDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,20 +38,22 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseProductDto> create(@Valid @RequestBody RequestProductDto dto) {
-        ResponseProductDto response = productService.createProduct(mapper.toCreateDto(dto));
+    public ResponseEntity<ResponseProductDto> createProduct(@Valid @RequestBody CreateProductRequestDto createProductRequestDto) {
+        ResponseProductDto response = productService.createProduct(createProductRequestDto);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseProductDto> update(@PathVariable String id, @Valid @RequestBody RequestProductDto dto) {
-        UpdateProductDto updateProductDto = mapper.toUpdateDto(id, dto);
-        ResponseProductDto response = productService.updateProduct(updateProductDto);
+    public ResponseEntity<ResponseProductDto> updateProduct(@PathVariable String id, @Valid @RequestBody UpdateProductRequestDto updateProductRequestDto) {
+        if (!id.equals(updateProductRequestDto.id())) {
+            return ResponseEntity.badRequest().build();
+        }
+        ResponseProductDto response = productService.updateProduct(updateProductRequestDto);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         productService.deleteProduct(UUID.fromString(id));
         return ResponseEntity.noContent().build(); // можна кидати таке при видаленні
     }

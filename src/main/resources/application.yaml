@@ -5,5 +5,8 @@ spring:
     compose:
       enabled: false
 
+  profiles:
+    active: dev # for real project better use environment variable
+
 server:
   port: 8088

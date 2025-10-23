@@ -5,6 +5,7 @@ info:
 servers:
 - url: http://localhost:8088
   description: Generated server url
+
 paths:
   /api/v1/products:
     post:
@@ -15,7 +16,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RequestProductDto"
+              $ref: "#/components/schemas/CreateProductRequestDto"
         required: true
       responses:
         "200":
@@ -23,7 +24,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/RequestProductDto"
+                $ref: "#/components/schemas/ResponseProductDto"
         "400":
           description: "Validation error"
           content:
@@ -39,6 +40,21 @@ paths:
                 invalidParams:
                   fieldName: "name"
                   reason: "Name should contain words: (star, galaxy, comet)"
+        "409":
+          description: "Product already exist"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                ProductAlreadyExist:
+                  summary: "Product already exist"
+                  value:
+                    type: "product-already-exist"
+                    title: "Product already exist"
+                    status: 409
+                    detail: "Product with name {productName} already exists"
+                    instance: "/api/v1/products"
 
     get:
       tags:
@@ -52,7 +68,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RequestProductDto"
+                  $ref: "#/components/schemas/ResponseProductDto"
 
   /api/v1/products/{id}:
     get:
@@ -89,7 +105,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RequestProductDto"
+              $ref: "#/components/schemas/UpdateProductRequestDto"
         required: true
       responses:
         "200":
@@ -97,7 +113,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/RequestProductDto"
+                $ref: "#/components/schemas/ResponseProductDto"
         "409":
           description: "Product already exist"
           content:
@@ -126,23 +142,8 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: OK
-        "404":
-          description: Product not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
-              examples:
-                ProductNotFound:
-                  summary: "Product not found"
-                  value:
-                    type: "product-not-found"
-                    title: "Product not found"
-                    status: 404
-                    detail: "Product with id {productId} not found"
-                    instance: "/api/v1/products"
+        "204":
+          description: NO_CONTENT
 
   /api/v1/categories:
     post:
@@ -153,7 +154,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RequestCategoryDto"
+              $ref: "#/components/schemas/CreateCategoryRequestDto"
         required: true
       responses:
         "200":
@@ -178,6 +179,46 @@ paths:
                   fieldName: "name"
                   reason: "Name must not be empty"
 
+    put:
+      tags:
+        - Categories
+      operationId: update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCategoryRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ResponseCategoryDto"
+        "409":
+          description: "Product already exist"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                ProductAlreadyExist:
+                  summary: "Category already exist"
+                  value:
+                    type: "category-already-exist"
+                    title: "Category already exist"
+                    status: 409
+                    detail: "Category with name {categoryName} already exists"
+                    instance: "/api/v1/categories"
+
     get:
       tags:
         - Categories
@@ -192,10 +233,25 @@ paths:
                 items:
                   $ref: "#/components/schemas/ResponseCategoryDto"
 
+    delete:
+      tags:
+        - Category
+      operationId: delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: NO_CONTENT
+
 components:
   schemas:
 
-    RequestProductDto:
+    CreateProductRequestDto:
       type: object
       properties:
         name:
@@ -212,11 +268,46 @@ components:
           type: number
           format: double
           minimum: 0
+          categoriesId:
+            type: set
+            minLength: 1
       required:
         - name
         - description
         - amount
         - price
+        - categoriesId
+
+    UpdateProductRequestDto:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        amount:
+          type: integer
+          format: int32
+          minimum: 0
+        price:
+          type: number
+          format: double
+          minimum: 0
+        categoriesId:
+          type: set
+          minLength: 1
+      required:
+        - id
+        - name
+        - description
+        - amount
+        - price
+        - categoriesId
 
     ResponseProductDto:
       type: object
@@ -241,13 +332,26 @@ components:
         - amount
         - price
 
-    RequestCategoryDto:
+    CreateCategoryRequestDto:
       type: object
       properties:
         name:
           type: string
           minLength: 1
       required:
+        - name
+
+    UpdateCategoryRequestDto:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+      required:
+        - id
         - name
 
     ResponseCategoryDto:
