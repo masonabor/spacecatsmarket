@@ -6,7 +6,7 @@ spring:
       enabled: false
 
   profiles:
-    active: dev # for real project better use environment variable
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
 server:
   port: 8088
