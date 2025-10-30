@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -49,8 +48,8 @@ public class CategoryServiceImpl implements CategoryService {
         HashMap<UUID, Product> updatedProducts = productRepository.findAllByCategory(previousCategory)
                 .stream()
                 .peek(product -> {
-                    product.removeCategory(previousCategory)
-                        .addCategory(category);
+                    productRepository.removeCategory(product.getId(), previousCategory);
+                    productRepository.addCategory(product.getId(), category);
                 })
                 .collect(Collectors.toMap(
                         Product::getId,
@@ -60,7 +59,6 @@ public class CategoryServiceImpl implements CategoryService {
                 ));
 
         productRepository.saveAll(updatedProducts);
-
         categoryRepository.save(category);
         return categoryMapper.toResponseCategoryDto(category);
     }
@@ -80,13 +78,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(UUID id) {
-        Category category = categoryRepository.findById(id)
-                .orElse(null);
+        Category category = categoryRepository.findById(id).orElse(null);
 
         if (category != null) {
             HashMap<UUID, Product> updatedProducts = productRepository.findAllByCategory(category)
                     .stream()
-                    .peek(product -> product.removeCategory(category))
+                    .peek(product -> productRepository.removeCategory(product.getId(), category))
                     .collect(Collectors.toMap(
                             Product::getId,
                             Function.identity(),

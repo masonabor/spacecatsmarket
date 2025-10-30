@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-
 @Repository
 @Slf4j
 public class InMemoryProductRepositoryImpl implements ProductRepository {
@@ -63,5 +62,83 @@ public class InMemoryProductRepositoryImpl implements ProductRepository {
                 .stream()
                 .filter(product -> product.getCategories().contains(category))
                 .toList();
+    }
+
+    public Product generateId(Product product) {
+        Product updated = Product.builder()
+                .id(UUID.randomUUID())
+                .name(product.getName())
+                .description(product.getDescription())
+                .amount(product.getAmount())
+                .price(product.getPrice())
+                .categories(product.getCategories())
+                .build();
+        products.put(updated.getId(), updated);
+        return updated;
+    }
+
+    public void addToAmount(UUID productId, int amount) {
+        Product product = products.get(productId);
+        if (product != null) {
+            Product updated = Product.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .description(product.getDescription())
+                    .amount(product.getAmount() + amount)
+                    .price(product.getPrice())
+                    .categories(product.getCategories())
+                    .build();
+            products.put(productId, updated);
+        }
+    }
+
+    public void removeFromAmount(UUID productId, int amount) {
+        Product product = products.get(productId);
+        if (product != null) {
+            int newAmount = Math.max(0, product.getAmount() - amount);
+            Product updated = Product.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .description(product.getDescription())
+                    .amount(newAmount)
+                    .price(product.getPrice())
+                    .categories(product.getCategories())
+                    .build();
+            products.put(productId, updated);
+        }
+    }
+
+    public void addCategory(UUID productId, Category category) {
+        Product product = products.get(productId);
+        if (product != null) {
+            Set<Category> updatedCategories = new HashSet<>(product.getCategories());
+            updatedCategories.add(category);
+            Product updated = Product.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .description(product.getDescription())
+                    .amount(product.getAmount())
+                    .price(product.getPrice())
+                    .categories(updatedCategories)
+                    .build();
+            products.put(productId, updated);
+        }
+    }
+
+    public void removeCategory(UUID productId, Category category) {
+        Product product = products.get(productId);
+        if (product != null) {
+            Set<Category> updatedCategories = new HashSet<>(product.getCategories());
+            updatedCategories.remove(category);
+            Product updated = Product.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .description(product.getDescription())
+                    .amount(product.getAmount())
+                    .price(product.getPrice())
+                    .categories(updatedCategories)
+                    .build();
+            products.put(productId, updated);
+        }
     }
 }
