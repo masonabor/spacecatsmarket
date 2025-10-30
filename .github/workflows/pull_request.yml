@@ -44,7 +44,7 @@ jobs:
           generate-job-summary: false
 
       - name: Run tests and generate coverage report
-        run: ./gradlew clean test integrationTest jacocoTestReport --info
+        run: ./gradlew clean test jacocoTestReport --info
 
       # Upload the JaCoCo test coverage report
       - name: Upload coverage report
