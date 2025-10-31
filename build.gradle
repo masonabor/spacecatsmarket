@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.edu.web'
@@ -19,14 +20,11 @@ ext {
     filesExcludedFromCoverage = [
             "**/config/*Configuration.*",
             "**/dto/**",
-            "**/domain/**",
             "**/mocks/**",
             "**/utils/**",
-            "**/web/**",
             "com/edu/web/spacecatsmarket/SpacecatsmarketApplication.*"
     ]
 }
-
 
 configurations {
     compileOnly {
@@ -37,9 +35,6 @@ configurations {
 repositories {
     mavenCentral()
 }
-
-apply from: "${rootProject.projectDir}/gradle/test.gradle"
-apply from: "${rootProject.projectDir}/gradle/jacoco.gradle"
 
 dependencies {
     implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
