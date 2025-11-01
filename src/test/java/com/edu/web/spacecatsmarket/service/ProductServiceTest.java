@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket;
+package com.edu.web.spacecatsmarket.service;
 
 import com.edu.web.spacecatsmarket.domain.catalog.Category;
 import com.edu.web.spacecatsmarket.domain.catalog.Product;
@@ -23,7 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = {ProductServiceImpl.class})
@@ -130,4 +131,5 @@ public class ProductServiceTest {
         verify(productRepository).findById(PRODUCT_ID);
         verifyNoMoreInteractions(productRepository);
     }
+
 }

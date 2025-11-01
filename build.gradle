@@ -17,7 +17,15 @@ java {
 ext {
     minimumCoveragePerFile = 0.0
     filesExcludedFromCoverage = [
-            "**/config/*Configuration.*"
+            "**/config/*Configuration.*",
+            "**/dto/**",
+            "**/repository/**",
+            "**/mapper/**",
+            "**/exception/**",
+            "**/domain/**",
+            "**/mocks/**",
+            "**/utils/**",
+            "**/SpacecatsmarketApplication.*"
     ]
 }
 

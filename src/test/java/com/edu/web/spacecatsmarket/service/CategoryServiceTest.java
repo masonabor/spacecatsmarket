@@ -1,4 +1,4 @@
-package com.edu.web.spacecatsmarket;
+package com.edu.web.spacecatsmarket.service;
 
 import com.edu.web.spacecatsmarket.domain.catalog.Category;
 import com.edu.web.spacecatsmarket.domain.catalog.Product;
@@ -20,7 +20,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = {CategoryServiceImpl.class})
@@ -115,6 +116,7 @@ public class CategoryServiceTest {
         verify(productRepository).removeCategory(product.getId(), CATEGORY);
         verify(categoryRepository).delete(CATEGORY_ID);
     }
+
 
     @Test
     @DisplayName("Should do nothing if category not found on delete")

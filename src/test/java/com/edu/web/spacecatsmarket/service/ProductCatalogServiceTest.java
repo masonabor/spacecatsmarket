@@ -1,10 +1,10 @@
-package com.edu.web.spacecatsmarket;
+package com.edu.web.spacecatsmarket.service;
 
 import com.edu.web.spacecatsmarket.domain.catalog.Product;
 import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.repository.catalog.ProductRepository;
-import com.edu.web.spacecatsmarket.service.impl.ProductCatalogServiceImpl;
 import com.edu.web.spacecatsmarket.service.exception.ProductNotFoundException;
+import com.edu.web.spacecatsmarket.service.impl.ProductCatalogServiceImpl;
 import com.edu.web.spacecatsmarket.service.mapper.ProductDtoMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
