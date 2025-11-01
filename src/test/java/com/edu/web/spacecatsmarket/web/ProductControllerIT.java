@@ -152,4 +152,29 @@ class ProductControllerIT {
         verify(productService, times(1)).deleteProduct(any());
     }
 
+    @Test
+    void testUpdateProduct_success() throws Exception {
+        String productId = productResponse.id();
+        UpdateProductRequestDto request = new UpdateProductRequestDto(
+                productId,
+                "New Galaxy Name",
+                "Updated Description",
+                5,
+                500.0,
+                Set.of(UUID.randomUUID().toString())
+        );
+
+        when(productService.updateProduct(any(UpdateProductRequestDto.class)))
+                .thenReturn(productResponse);
+
+        mockMvc.perform(put("/api/v1/products/{id}", productId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(productId))
+                .andExpect(jsonPath("$.name").value(productResponse.name()));
+
+        verify(productService, times(1)).updateProduct(any(UpdateProductRequestDto.class));
+    }
+
 }
