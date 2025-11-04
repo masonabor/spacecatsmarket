@@ -5,9 +5,8 @@ import lombok.Getter;
 @Getter
 public enum FeatureToggles {
 
-    COSMO_CATS("cosmoCats"),
-    FILE_LOGGING("fileLogging"),
-    ADMIN_DELETION("adminDeletion");
+    COSMO_CATS("cosmo-cats"),
+    ADMIN_OPERATION("admin-operation");
 
     private final String name;
 
