@@ -5,8 +5,8 @@ import org.gradle.api.tasks.testing.TestResult
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
 
-    testClassesDirs = testing.suites.test.sources.output.classesDirs
-    classpath = testing.suites.test.sources.runtimeClasspath
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
 
     testLogging {
         // set options for log level LIFECYCLE
