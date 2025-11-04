@@ -13,5 +13,6 @@ server:
 
 application:
   feature:
-    cosmo-cats: true
-    admin-operation: true
+    featureToggles:
+      cosmo-cats: true
+      admin-operation: true

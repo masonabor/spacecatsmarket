@@ -5,6 +5,7 @@ import com.edu.web.spacecatsmarket.featuretoggle.FeatureToggleService;
 import com.edu.web.spacecatsmarket.featuretoggle.FeatureToggles;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -13,7 +14,8 @@ public class FeatureToggleServiceImpl implements FeatureToggleService {
     private final ConcurrentHashMap<FeatureToggles, Boolean> featureToggleMap;
 
     public FeatureToggleServiceImpl(FeatureToggleConfig featureToggleConfig) {
-        featureToggleMap = new ConcurrentHashMap<>(featureToggleConfig.getFeatureToggles());
+        Map<FeatureToggles, Boolean> map = featureToggleConfig.getFeatureToggles();
+        featureToggleMap = new ConcurrentHashMap<>(map != null ? map : Map.of());
     }
 
     @Override
