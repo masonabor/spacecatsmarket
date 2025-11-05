@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,7 +23,7 @@ public class CosmoCatsServiceTest {
     @Autowired
     private CosmoCatsService cosmoCatsService;
 
-    @Autowired
+    @MockitoBean
     private FeatureToggleServiceImpl featureToggleService;
 
     @Test

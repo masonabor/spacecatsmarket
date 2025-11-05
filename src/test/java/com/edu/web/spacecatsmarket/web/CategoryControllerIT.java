@@ -3,6 +3,8 @@ package com.edu.web.spacecatsmarket.web;
 import com.edu.web.spacecatsmarket.dto.category.CreateCategoryRequestDto;
 import com.edu.web.spacecatsmarket.dto.category.ResponseCategoryDto;
 import com.edu.web.spacecatsmarket.dto.category.UpdateCategoryRequestDto;
+import com.edu.web.spacecatsmarket.featuretoggle.FeatureToggles;
+import com.edu.web.spacecatsmarket.featuretoggle.impl.FeatureToggleServiceImpl;
 import com.edu.web.spacecatsmarket.service.CategoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +39,9 @@ class CategoryControllerIT {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private FeatureToggleServiceImpl featureToggleService;
 
     private ResponseCategoryDto categoryResponse;
 
@@ -111,6 +116,7 @@ class CategoryControllerIT {
 
     @Test
     void testDeleteCategory_success() throws Exception {
+        featureToggleService.disable(FeatureToggles.COSMO_CATS);
         doNothing().when(categoryService).delete(any());
 
         mockMvc.perform(delete("/api/v1/categories/{id}", UUID.randomUUID()))
