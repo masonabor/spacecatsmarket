@@ -30,6 +30,6 @@ public class FeatureToggleServiceImpl implements FeatureToggleService {
 
     @Override
     public void disable(FeatureToggles featureToggles) {
-        featureToggleMap.replace(featureToggles, false);
+        featureToggleMap.put(featureToggles, false);
     }
 }

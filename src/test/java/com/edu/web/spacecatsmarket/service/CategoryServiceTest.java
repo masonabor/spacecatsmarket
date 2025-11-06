@@ -13,10 +13,12 @@ import com.edu.web.spacecatsmarket.service.impl.CategoryServiceImpl;
 import com.edu.web.spacecatsmarket.service.mapper.CategoryDtoMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 
@@ -43,6 +45,8 @@ public class CategoryServiceTest {
 
     @MockitoBean
     private CategoryDtoMapper categoryMapper;
+
+
 
     @Autowired
     private CategoryServiceImpl categoryService;

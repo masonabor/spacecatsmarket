@@ -3,24 +3,32 @@ package com.edu.web.spacecatsmarket.web;
 import com.edu.web.spacecatsmarket.dto.category.CreateCategoryRequestDto;
 import com.edu.web.spacecatsmarket.dto.category.ResponseCategoryDto;
 import com.edu.web.spacecatsmarket.dto.category.UpdateCategoryRequestDto;
+import com.edu.web.spacecatsmarket.featuretoggle.FeatureToggleExtension;
 import com.edu.web.spacecatsmarket.featuretoggle.FeatureToggles;
+import com.edu.web.spacecatsmarket.featuretoggle.annotation.DisabledFeatureToggle;
+import com.edu.web.spacecatsmarket.featuretoggle.annotation.EnabledFeatureToggle;
+import com.edu.web.spacecatsmarket.featuretoggle.exception.AdminRequiredException;
 import com.edu.web.spacecatsmarket.featuretoggle.impl.FeatureToggleServiceImpl;
 import com.edu.web.spacecatsmarket.service.CategoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jdk.jfr.Enabled;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -29,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Category Controller Integration Tests")
+@ExtendWith(FeatureToggleExtension.class)
 class CategoryControllerIT {
 
     @Autowired
@@ -39,9 +48,6 @@ class CategoryControllerIT {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private FeatureToggleServiceImpl featureToggleService;
 
     private ResponseCategoryDto categoryResponse;
 
@@ -115,13 +121,34 @@ class CategoryControllerIT {
     }
 
     @Test
+    @DisabledFeatureToggle(FeatureToggles.ADMIN_OPERATION)
     void testDeleteCategory_success() throws Exception {
-        featureToggleService.disable(FeatureToggles.COSMO_CATS);
         doNothing().when(categoryService).delete(any());
 
         mockMvc.perform(delete("/api/v1/categories/{id}", UUID.randomUUID()))
                 .andExpect(status().isNoContent());
 
         verify(categoryService, times(1)).delete(any());
+    }
+
+    @Test
+    @EnabledFeatureToggle(FeatureToggles.ADMIN_OPERATION)
+    void testDeleteCategory_throwsAdminRequiredException() throws Exception {
+        doNothing().when(categoryService).delete(any());
+
+        mockMvc.perform(delete("/api/v1/categories/{id}", UUID.randomUUID())
+                        .header("role", "USER"))
+                        .andExpect(status().isForbidden())
+                        .andExpect(result -> assertInstanceOf(AdminRequiredException.class, result.getResolvedException()));
+    }
+
+    @Test
+    @EnabledFeatureToggle(FeatureToggles.ADMIN_OPERATION)
+    void testDeleteCategoryWithAdminHeader_success() throws Exception {
+        doNothing().when(categoryService).delete(any());
+
+        mockMvc.perform(delete("/api/v1/categories/{id}", UUID.randomUUID())
+                        .header("role", "ADMIN"))
+                        .andExpect(status().isNoContent());
     }
 }
