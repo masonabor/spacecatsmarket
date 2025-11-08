@@ -54,7 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .collect(Collectors.toMap(
                         Product::getId,
                         Function.identity(),
-                        (existing, _) -> existing,
+                        (existing, ignoredValue) -> existing,
                         HashMap::new
                 ));
 
@@ -87,7 +87,7 @@ public class CategoryServiceImpl implements CategoryService {
                     .collect(Collectors.toMap(
                             Product::getId,
                             Function.identity(),
-                            (existing, _) -> existing,
+                            (existing, ignoredValue) -> existing,
                             HashMap::new
                     ));
 
