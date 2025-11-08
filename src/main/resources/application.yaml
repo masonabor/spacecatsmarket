@@ -10,3 +10,9 @@ spring:
 
 server:
   port: 8088
+
+application:
+  feature:
+    featureToggles:
+      cosmo-cats: true
+      admin-operation: true

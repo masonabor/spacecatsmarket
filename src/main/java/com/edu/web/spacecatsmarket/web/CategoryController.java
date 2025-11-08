@@ -2,6 +2,8 @@ package com.edu.web.spacecatsmarket.web;
 
 import com.edu.web.spacecatsmarket.dto.category.CreateCategoryRequestDto;
 import com.edu.web.spacecatsmarket.dto.category.UpdateCategoryRequestDto;
+import com.edu.web.spacecatsmarket.featuretoggle.FeatureToggles;
+import com.edu.web.spacecatsmarket.featuretoggle.annotation.FeatureToggle;
 import com.edu.web.spacecatsmarket.service.CategoryService;
 import com.edu.web.spacecatsmarket.dto.category.ResponseCategoryDto;
 import jakarta.validation.Valid;
@@ -46,6 +48,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @FeatureToggle(FeatureToggles.ADMIN_OPERATION)
     public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();

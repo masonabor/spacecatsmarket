@@ -1,5 +1,5 @@
 
-FROM gradle:jdk24-alpine AS build
+FROM gradle:jdk21-alpine AS build
 WORKDIR /app
 
 COPY settings.gradle build.gradle /app/
@@ -10,7 +10,7 @@ COPY src /app/src
 
 RUN gradle clean bootJar --no-daemon
 
-FROM eclipse-temurin:24-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 COPY --from=build /app/build/libs/*-SNAPSHOT.jar /app/app.jar
