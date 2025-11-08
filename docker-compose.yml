@@ -1,0 +1,31 @@
+services:
+  # Application service
+  spacecatsmarket:
+    # Build the image from the Dockerfile in the current directory
+    build: .
+    container_name: spacecatsmarket
+    ports:
+      # Map container's port 8088 to the host's port 8088
+      - "8088:8088"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  # PostgreSQL database service
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      # Environment variables to initialize the database on the first run
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      # Map container's port 5432 to the host for external connections (e.g., DBeaver)
+      - "5432:5432"
+    volumes:
+      # Persist database data on the host machine using a named volume
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  # Define the named volume for data persistence
+  postgres-data:
