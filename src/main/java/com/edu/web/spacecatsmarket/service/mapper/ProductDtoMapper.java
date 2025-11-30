@@ -4,6 +4,7 @@ import com.edu.web.spacecatsmarket.domain.catalog.Product;
 import com.edu.web.spacecatsmarket.dto.product.CreateProductRequestDto;
 import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.dto.product.UpdateProductRequestDto;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -17,6 +18,22 @@ import java.util.UUID;
         uses = {CategoryDtoMapper.class}
 )
 public interface ProductDtoMapper {
+
+    @Mapping(target = "id", source = "id", qualifiedByName = "toStringProductId")
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "amount", source = "amount")
+    @Mapping(target = "price", source = "price")
+    @Mapping(target = "categories", source = "categories")
+    ResponseProductDto toResponseProductDto(ProductEntity productEntity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "amount", source = "amount")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "price", source = "price")
+    @Mapping(target = "categories", ignore = true)
+    ProductEntity toProductEntity(CreateProductRequestDto createProductRequestDto);
 
     @Mapping(target = "id", source = "id", qualifiedByName = "toStringProductId")
     @Mapping(target = "name", source = "name")

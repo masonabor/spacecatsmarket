@@ -1,26 +1,50 @@
 package com.edu.web.spacecatsmarket.repository.catalog;
 
-
 import com.edu.web.spacecatsmarket.domain.catalog.Category;
 import com.edu.web.spacecatsmarket.domain.catalog.Product;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.CategoryEntity;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface ProductRepository {
-    void save(Product product);
-    void update(Product product);
-    void saveAll(HashMap<UUID, Product> products);
-    List<Product> findAll();
-    Optional<Product> findById(UUID id);
-    void delete(UUID id);
-    boolean existByName(String productName);
-    List<Product> findAllByCategory(Category category);
-    Product generateId(Product product);
-    void addToAmount(UUID productId, int amount);
-    void removeFromAmount(UUID productId, int amount);
-    void addCategory(UUID productId, Category category);
-    void removeCategory(UUID productId, Category category);
+@Repository
+public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
+
+    boolean existsByName(String name);
+
+    List<ProductEntity> findByCategoriesContaining(CategoryEntity category);
+
+    @Query("SELECT p.name as productName, SUM(oi.quantity) as totalSold " +
+            "FROM OrderItemEntity oi " +
+            "JOIN oi.product p " +
+            "GROUP BY p.name " +
+            "ORDER BY totalSold DESC")
+    List<TopProductProjection> findTopSellingProducts();
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProductEntity p SET p.amount = p.amount + :amount WHERE p.id = :id")
+    void addToAmount(@Param("id") UUID id, @Param("amount") int amount);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ProductEntity p SET p.amount = p.amount - :amount WHERE p.id = :id")
+    void removeFromAmount(@Param("id") UUID id, @Param("amount") int amount);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO product_category (product_id, category_id) VALUES (:productId, :categoryId)", nativeQuery = true)
+    void addCategory(@Param("productId") UUID productId, @Param("categoryId") UUID categoryId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM product_category WHERE product_id = :productId AND category_id = :categoryId", nativeQuery = true)
+    void removeCategory(@Param("productId") UUID productId, @Param("categoryId") UUID categoryId);
 }

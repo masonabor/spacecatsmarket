@@ -4,6 +4,7 @@ import com.edu.web.spacecatsmarket.domain.catalog.Category;
 import com.edu.web.spacecatsmarket.dto.category.CreateCategoryRequestDto;
 import com.edu.web.spacecatsmarket.dto.category.ResponseCategoryDto;
 import com.edu.web.spacecatsmarket.dto.category.UpdateCategoryRequestDto;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.CategoryEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -16,6 +17,12 @@ import java.util.UUID;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface CategoryDtoMapper {
+
+    CategoryEntity toCategoryEntity(CreateCategoryRequestDto createCategoryRequestDto);
+
+    @Mapping(target = "id", source = "id", qualifiedByName = "toStringCategoryId")
+    @Mapping(target = "name", source = "name")
+    ResponseCategoryDto toResponseCategoryDto(CategoryEntity categoryEntity);
 
     @Mapping(target = "id", source = "id", qualifiedByName = "toStringCategoryId")
     @Mapping(target = "name", source = "name")
