@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @DisplayName("ProductCatalog Service Tests (Testcontainers)")
-public class ProductCatalogServiceTest extends AbstractIntegrationTest {
+public class ProductCatalogServiceIT extends AbstractIntegrationTest {
 
     @Autowired
     private ProductCatalogServiceImpl productCatalogService;

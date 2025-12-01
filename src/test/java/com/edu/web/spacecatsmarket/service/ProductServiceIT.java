@@ -15,14 +15,16 @@ import com.edu.web.spacecatsmarket.service.impl.ProductServiceImpl;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Transactional
 @ActiveProfiles("test")
 @DisplayName("ProductServiceImpl Tests (Testcontainers)")
-public class ProductServiceTest extends AbstractIntegrationTest {
+public class ProductServiceIT extends AbstractIntegrationTest {
 
     @Autowired
     private ProductServiceImpl productService;

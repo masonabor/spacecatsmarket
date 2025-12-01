@@ -14,6 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,6 +36,16 @@ class CategoryControllerIT extends AbstractIntegrationTest {
     @BeforeEach
     void cleanUp() {
         categoryRepository.deleteAll();
+    }
+
+    @Test
+    void testGetAllCategories() throws Exception {
+        categoryRepository.save(CategoryEntity.builder().name("C1").build());
+        categoryRepository.save(CategoryEntity.builder().name("C2").build());
+
+        mockMvc.perform(get("/api/v1/categories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
@@ -58,6 +71,15 @@ class CategoryControllerIT extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("New")));
+    }
+
+    @Test
+    void testUpdateCategory_BadRequestIdMismatch() throws Exception {
+        UpdateCategoryRequestDto request = new UpdateCategoryRequestDto(UUID.randomUUID().toString(), "New");
+        mockMvc.perform(put("/api/v1/categories/{id}", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
