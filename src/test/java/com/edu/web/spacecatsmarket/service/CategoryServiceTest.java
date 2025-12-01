@@ -1,134 +1,111 @@
 package com.edu.web.spacecatsmarket.service;
-/*
-import com.edu.web.spacecatsmarket.domain.catalog.Category;
-import com.edu.web.spacecatsmarket.domain.catalog.Product;
+
+import com.edu.web.spacecatsmarket.AbstractIntegrationTest;
 import com.edu.web.spacecatsmarket.dto.category.CreateCategoryRequestDto;
 import com.edu.web.spacecatsmarket.dto.category.ResponseCategoryDto;
 import com.edu.web.spacecatsmarket.dto.category.UpdateCategoryRequestDto;
 import com.edu.web.spacecatsmarket.repository.catalog.CategoryRepository;
 import com.edu.web.spacecatsmarket.repository.catalog.ProductRepository;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.CategoryEntity;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
 import com.edu.web.spacecatsmarket.service.exception.CategoryAlreadyExistException;
 import com.edu.web.spacecatsmarket.service.exception.CategoryNotFoundException;
 import com.edu.web.spacecatsmarket.service.impl.CategoryServiceImpl;
-import com.edu.web.spacecatsmarket.service.mapper.CategoryDtoMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = {CategoryServiceImpl.class})
-@Import(CategoryDtoMapper.class)
+@ActiveProfiles("test")
 @TestMethodOrder(OrderAnnotation.class)
-@DisplayName("Category Service Tests")
-public class CategoryServiceTest {
-
-    //mock data
-    private static final UUID CATEGORY_ID = UUID.randomUUID();
-    private static final String CATEGORY_NAME = "CATEGORY_NAME";
-    private static final Category CATEGORY = Category.builder().id(CATEGORY_ID).name(CATEGORY_NAME).build();
-
-    @MockitoBean
-    private CategoryRepository categoryRepository;
-
-    @MockitoBean
-    private ProductRepository productRepository;
-
-    @MockitoBean
-    private CategoryDtoMapper categoryMapper;
-
-
+@DisplayName("Category Service Tests (Testcontainers)")
+public class CategoryServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private CategoryServiceImpl categoryService;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @BeforeEach
+    void cleanDb() {
+        productRepository.deleteAll();
+        categoryRepository.deleteAll();
+    }
+
     @Test
     @DisplayName("Should create category when name unique")
     void testCreateCategory() {
-        CreateCategoryRequestDto dto = new CreateCategoryRequestDto(CATEGORY_NAME);
-        when(categoryRepository.existsByName(CATEGORY_NAME)).thenReturn(false);
-        when(categoryMapper.toCategory(dto)).thenReturn(CATEGORY);
-        categoryService.createCategory(dto);
-        verify(categoryRepository).save(any(Category.class));
+        CreateCategoryRequestDto dto = new CreateCategoryRequestDto("CATEGORY_NAME");
+
+        ResponseCategoryDto result = categoryService.createCategory(dto);
+
+        assertNotNull(result);
+        assertEquals("CATEGORY_NAME", result.name());
+        assertTrue(categoryRepository.existsByName("CATEGORY_NAME"));
     }
 
     @Test
     @DisplayName("Should throw exception if category exists")
     void testCreateCategoryExists() {
-        CreateCategoryRequestDto dto = new CreateCategoryRequestDto(CATEGORY_NAME);
-        when(categoryRepository.existsByName(CATEGORY_NAME)).thenReturn(true);
+        categoryRepository.save(CategoryEntity.builder().name("CATEGORY_NAME").build());
+
+        CreateCategoryRequestDto dto = new CreateCategoryRequestDto("CATEGORY_NAME");
+
         assertThrows(CategoryAlreadyExistException.class, () -> categoryService.createCategory(dto));
     }
 
     @Test
     @DisplayName("Should get category by id")
     void testGetById() {
-        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(CATEGORY));
-        when(categoryMapper.toResponseCategoryDto(CATEGORY))
-                .thenReturn(new ResponseCategoryDto(CATEGORY_ID.toString(), CATEGORY.getName()));
+        CategoryEntity saved = categoryRepository.save(
+                CategoryEntity.builder().name("CATEGORY_NAME").build()
+        );
 
-        ResponseCategoryDto result = categoryService.getById(CATEGORY_ID);
+        ResponseCategoryDto result = categoryService.getById(saved.getId());
+
         assertNotNull(result);
-
-        verify(categoryRepository).findById(CATEGORY_ID);
-        verify(categoryMapper).toResponseCategoryDto(CATEGORY);
+        assertEquals(saved.getId().toString(), result.id());
+        assertEquals("CATEGORY_NAME", result.name());
     }
 
     @Test
     @DisplayName("Should throw if category not found")
     void testGetByIdNotFound() {
-        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.empty());
-        assertThrows(CategoryNotFoundException.class, () -> categoryService.getById(CATEGORY_ID));
+        assertThrows(CategoryNotFoundException.class,
+                () -> categoryService.getById(UUID.randomUUID()));
     }
 
     @Test
     @DisplayName("Should update category successfully")
     void testUpdateCategory() {
-        UpdateCategoryRequestDto dto = new UpdateCategoryRequestDto(CATEGORY_ID.toString(), "Updated");
-        Category updated = Category.builder().id(CATEGORY_ID).name("Updated").build();
-        Product product = Product.builder().id(UUID.randomUUID()).name("Product").build();
+        CategoryEntity saved = categoryRepository.save(
+                CategoryEntity.builder().name("Old").build()
+        );
 
-        when(categoryMapper.toCategory(dto)).thenReturn(updated);
-        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(CATEGORY));
-        when(productRepository.findAllByCategory(CATEGORY)).thenReturn(List.of(product));
+        UpdateCategoryRequestDto dto =
+                new UpdateCategoryRequestDto(saved.getId().toString(), "Updated");
 
-        categoryService.updateCategory(dto);
+        ResponseCategoryDto result = categoryService.updateCategory(dto);
 
-        verify(productRepository).removeCategory(product.getId(), CATEGORY);
-        verify(productRepository).addCategory(product.getId(), updated);
-        verify(categoryRepository).save(updated);
-    }
+        assertEquals("Updated", result.name());
 
-    @Test
-    @DisplayName("Should delete category successfully")
-    void testDeleteCategory() {
-        Product product = Product.builder().id(UUID.randomUUID()).name("Product").build();
-        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(CATEGORY));
-        when(productRepository.findAllByCategory(CATEGORY)).thenReturn(List.of(product));
-
-        categoryService.delete(CATEGORY_ID);
-
-        verify(productRepository).removeCategory(product.getId(), CATEGORY);
-        verify(categoryRepository).delete(CATEGORY_ID);
+        CategoryEntity reloaded = categoryRepository.findById(saved.getId()).orElseThrow();
+        assertEquals("Updated", reloaded.getName());
     }
 
 
     @Test
-    @DisplayName("Should do nothing if category not found on delete")
+    @DisplayName("Should throw if category not found on delete")
     void testDeleteNotFound() {
-        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.empty());
-        categoryService.delete(CATEGORY_ID);
-        verify(categoryRepository).findById(CATEGORY_ID);
-        verifyNoMoreInteractions(productRepository);
+        assertThrows(CategoryNotFoundException.class,
+                () -> categoryService.delete(UUID.randomUUID()));
     }
 }
-*/

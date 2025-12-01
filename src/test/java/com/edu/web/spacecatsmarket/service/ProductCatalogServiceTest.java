@@ -1,92 +1,90 @@
 package com.edu.web.spacecatsmarket.service;
 
-import com.edu.web.spacecatsmarket.domain.catalog.Product;
-import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
+import com.edu.web.spacecatsmarket.AbstractIntegrationTest;
 import com.edu.web.spacecatsmarket.repository.catalog.ProductRepository;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
+import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.service.exception.ProductNotFoundException;
 import com.edu.web.spacecatsmarket.service.impl.ProductCatalogServiceImpl;
-import com.edu.web.spacecatsmarket.service.mapper.ProductDtoMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ActiveProfiles;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-/*
-@SpringBootTest(classes = {ProductCatalogServiceImpl.class})
-@Import(ProductDtoMapper.class)
-@DisplayName("ProductCatalog Service Tests")
-public class ProductCatalogServiceTest {
 
-    //mock data
-    private static final UUID PRODUCT_ID = UUID.randomUUID();
-    private static final Product PRODUCT = Product.builder().id(PRODUCT_ID).name("Product1").build();
-
-    @MockitoBean
-    private ProductRepository productRepository;
-
-    @MockitoBean
-    private ProductDtoMapper productDtoMapper;
+@ActiveProfiles("test")
+@DisplayName("ProductCatalog Service Tests (Testcontainers)")
+public class ProductCatalogServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private ProductCatalogServiceImpl productCatalogService;
 
+    @Autowired
+    private ProductRepository productRepository;
+
+    @BeforeEach
+    void cleanDb() {
+        productRepository.deleteAll();
+    }
+
     @Test
     @DisplayName("Should get product by id")
     void testGetById() {
-        ResponseProductDto dto = new ResponseProductDto(PRODUCT_ID.toString(), "Product1", null, null, null, Set.of());
-        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(PRODUCT));
-        when(productDtoMapper.toResponseProductDto(PRODUCT)).thenReturn(dto);
 
-        ResponseProductDto result = productCatalogService.getById(PRODUCT_ID);
+        ProductEntity saved = productRepository.save(
+                ProductEntity.builder()
+                        .name("Product1")
+                        .description("d")
+                        .amount(10)
+                        .price(100.0)
+                        .categories(new HashSet<>())
+                        .build()
+        );
+
+        ResponseProductDto result = productCatalogService.getById(saved.getId());
 
         assertNotNull(result);
-        assertEquals(PRODUCT_ID.toString(), result.id());
-        verify(productRepository).findById(PRODUCT_ID);
-        verify(productDtoMapper).toResponseProductDto(PRODUCT);
+        assertEquals(saved.getId().toString(), result.id());
+        assertEquals("Product1", result.name());
     }
 
     @Test
     @DisplayName("Should throw when product not found by id")
     void testGetByIdNotFound() {
-        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.empty());
-
         assertThrows(ProductNotFoundException.class,
-                () -> productCatalogService.getById(PRODUCT_ID));
-
-        verify(productRepository).findById(PRODUCT_ID);
-        verifyNoInteractions(productDtoMapper);
+                () -> productCatalogService.getById(UUID.randomUUID()));
     }
 
     @Test
     @DisplayName("Should get all products")
     void testGetAll() {
-        Product p2 = Product.builder().id(UUID.randomUUID()).name("Product2").build();
-        List<Product> products = List.of(PRODUCT, p2);
-        when(productRepository.findAll()).thenReturn(products);
 
-        ResponseProductDto dto1 = new ResponseProductDto(PRODUCT_ID.toString(), "Product1", null, null, null, Set.of());
-        ResponseProductDto dto2 = new ResponseProductDto(p2.getId().toString(), "Product2", null, null, null, Set.of());
+        productRepository.save(
+                ProductEntity.builder()
+                        .name("Product1")
+                        .description("d1")
+                        .amount(5)
+                        .price(50.0)
+                        .categories(new HashSet<>())
+                        .build()
+        );
 
-        when(productDtoMapper.toResponseProductDto(PRODUCT)).thenReturn(dto1);
-        when(productDtoMapper.toResponseProductDto(p2)).thenReturn(dto2);
+        productRepository.save(
+                ProductEntity.builder()
+                        .name("Product2")
+                        .description("d2")
+                        .amount(3)
+                        .price(20.0)
+                        .categories(new HashSet<>())
+                        .build()
+        );
 
         List<ResponseProductDto> result = productCatalogService.getAll();
 
         assertEquals(2, result.size());
-        verify(productRepository).findAll();
-        verify(productDtoMapper).toResponseProductDto(PRODUCT);
-        verify(productDtoMapper).toResponseProductDto(p2);
     }
 }
-
-
- */

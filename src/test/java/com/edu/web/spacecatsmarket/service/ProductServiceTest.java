@@ -1,138 +1,160 @@
 package com.edu.web.spacecatsmarket.service;
 
-import com.edu.web.spacecatsmarket.domain.catalog.Category;
-import com.edu.web.spacecatsmarket.domain.catalog.Product;
+import com.edu.web.spacecatsmarket.AbstractIntegrationTest;
 import com.edu.web.spacecatsmarket.dto.product.CreateProductRequestDto;
 import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.dto.product.UpdateProductRequestDto;
 import com.edu.web.spacecatsmarket.repository.catalog.CategoryRepository;
 import com.edu.web.spacecatsmarket.repository.catalog.ProductRepository;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.CategoryEntity;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
 import com.edu.web.spacecatsmarket.service.exception.CategoryNotFoundException;
 import com.edu.web.spacecatsmarket.service.exception.ProductAlreadyExistException;
 import com.edu.web.spacecatsmarket.service.exception.ProductNotFoundException;
 import com.edu.web.spacecatsmarket.service.impl.ProductServiceImpl;
-import com.edu.web.spacecatsmarket.service.mapper.ProductDtoMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-/*
-@SpringBootTest(classes = {ProductServiceImpl.class})
-@Import(ProductDtoMapper.class)
-@DisplayName("ProductServiceImpl Tests")
-public class ProductServiceTest {
+import static org.junit.jupiter.api.Assertions.*;
 
-    //mock data
-    private static final UUID PRODUCT_ID = UUID.randomUUID();
-    private static final UUID CATEGORY_ID = UUID.randomUUID();
-
-    @MockitoBean
-    private ProductRepository productRepository;
-
-    @MockitoBean
-    private CategoryRepository categoryRepository;
-
-    @MockitoBean
-    private ProductDtoMapper productDtoMapper;
+@ActiveProfiles("test")
+@DisplayName("ProductServiceImpl Tests (Testcontainers)")
+public class ProductServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private ProductServiceImpl productService;
 
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @BeforeEach
+    void cleanDb() {
+        productRepository.deleteAll();
+        categoryRepository.deleteAll();
+    }
+
     @Test
     @DisplayName("Should create product successfully")
     void testCreateProduct() {
-        CreateProductRequestDto request = new CreateProductRequestDto(
-                "NewProduct", "desc", 10, 99.0, Set.of(CATEGORY_ID.toString())
-        );
-        Product product = Product.builder().id(PRODUCT_ID).name("NewProduct").build();
-        Category category = Category.builder().id(CATEGORY_ID).name("Cat").build();
 
-        when(productRepository.existByName("NewProduct")).thenReturn(false);
-        when(productDtoMapper.toProduct(request)).thenReturn(product);
-        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(category));
-        when(productDtoMapper.toResponseProductDto(product)).thenReturn(
-                new ResponseProductDto(PRODUCT_ID.toString(), "NewProduct", "desc", 10, 99.0, Set.of())
+        CategoryEntity category = categoryRepository.save(
+                CategoryEntity.builder().name("Cat").build()
+        );
+
+        CreateProductRequestDto request = new CreateProductRequestDto(
+                "NewProduct",
+                "desc",
+                10,
+                99.0,
+                Set.of(category.getId().toString())
         );
 
         ResponseProductDto result = productService.createProduct(request);
 
         assertEquals("NewProduct", result.name());
-        verify(productRepository).save(product);
-        verify(productRepository).addCategory(product.getId(), category);
+        assertTrue(productRepository.existsByName("NewProduct"));
+
+        ProductEntity created = productRepository.findAll().getFirst();
+        assertEquals("NewProduct", created.getName());
+        assertEquals(1, created.getCategories().size());
     }
 
     @Test
     @DisplayName("Should throw when creating product that already exists")
     void testCreateProductAlreadyExists() {
-        CreateProductRequestDto request = new CreateProductRequestDto("ProductName", null, null, null, Set.of());
-        when(productRepository.existByName("ProductName")).thenReturn(true);
-        assertThrows(ProductAlreadyExistException.class, () -> productService.createProduct(request));
-        verify(productRepository).existByName("ProductName");
+        productRepository.save(
+                ProductEntity.builder()
+                        .name("ProductName")
+                        .description("d")
+                        .amount(0)
+                        .price(0.0)
+                        .categories(Set.of())
+                        .build()
+        );
+
+        CreateProductRequestDto request =
+                new CreateProductRequestDto("ProductName", null, null, null, Set.of());
+
+        assertThrows(ProductAlreadyExistException.class,
+                () -> productService.createProduct(request));
     }
 
     @Test
     @DisplayName("Should throw when category not found during create")
     void testCreateProductCategoryNotFound() {
-        CreateProductRequestDto request = new CreateProductRequestDto("ProductName", null, null, null, Set.of(CATEGORY_ID.toString()));
-        Product product = Product.builder().id(PRODUCT_ID).name("ProductName").build();
-        when(productRepository.existByName("ProductName")).thenReturn(false);
-        when(productDtoMapper.toProduct(request)).thenReturn(product);
-        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.empty());
-        assertThrows(CategoryNotFoundException.class, () -> productService.createProduct(request));
+
+        CreateProductRequestDto request =
+                new CreateProductRequestDto("Prod", "d", 1, 1.0, Set.of(UUID.randomUUID().toString()));
+
+        assertThrows(CategoryNotFoundException.class,
+                () -> productService.createProduct(request));
     }
 
     @Test
     @DisplayName("Should update product successfully")
     void testUpdateProduct() {
-        UpdateProductRequestDto request = new UpdateProductRequestDto(
-                PRODUCT_ID.toString(), "Updated", "desc", 5, 50.0, Set.of(CATEGORY_ID.toString())
-        );
-        Product product = Product.builder().id(PRODUCT_ID).name("Updated").build();
-        Category category = Category.builder().id(CATEGORY_ID).name("Cat").build();
 
-        when(productRepository.existByName("Updated")).thenReturn(false);
-        when(productDtoMapper.toProduct(request)).thenReturn(product);
-        when(categoryRepository.findById(CATEGORY_ID)).thenReturn(Optional.of(category));
-        when(productDtoMapper.toResponseProductDto(product)).thenReturn(
-                new ResponseProductDto(PRODUCT_ID.toString(), "Updated", "desc", 5, 50.0, Set.of())
+        CategoryEntity category = categoryRepository.save(
+                CategoryEntity.builder().name("Cat").build()
+        );
+
+        ProductEntity saved = productRepository.save(
+                ProductEntity.builder()
+                        .name("Old")
+                        .description("d")
+                        .amount(10)
+                        .price(10.0)
+                        .categories(Set.of())
+                        .build()
+        );
+
+        UpdateProductRequestDto request = new UpdateProductRequestDto(
+                saved.getId().toString(),
+                "Updated",
+                "desc",
+                5,
+                50.0,
+                Set.of(category.getId().toString())
         );
 
         ResponseProductDto result = productService.updateProduct(request);
 
         assertEquals("Updated", result.name());
-        verify(productRepository).update(product);
-        verify(productRepository).addCategory(product.getId(), category);
+
+        ProductEntity updated = productRepository.findById(saved.getId()).orElseThrow();
+
+        assertEquals("Updated", updated.getName());
+        assertEquals(1, updated.getCategories().size());
     }
 
     @Test
     @DisplayName("Should delete product successfully")
     void testDeleteProduct() {
-        Product product = Product.builder().id(PRODUCT_ID).name("Del").build();
-        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(product));
-        productService.deleteProduct(PRODUCT_ID);
-        verify(productRepository).delete(PRODUCT_ID);
+        ProductEntity saved = productRepository.save(
+                ProductEntity.builder()
+                        .name("Del")
+                        .description("d")
+                        .amount(1)
+                        .price(5.0)
+                        .categories(Set.of())
+                        .build()
+        );
+
+        productService.deleteProduct(saved.getId());
+
+        assertFalse(productRepository.existsById(saved.getId()));
     }
 
     @Test
     @DisplayName("Should throw ProductNotFoundException when deleting unknown id")
     void testDeleteProductNotFound() {
-        when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.empty());
-        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(PRODUCT_ID));
-        verify(productRepository).findById(PRODUCT_ID);
-        verifyNoMoreInteractions(productRepository);
+        assertThrows(ProductNotFoundException.class,
+                () -> productService.deleteProduct(UUID.randomUUID()));
     }
-
 }
-
-
- */
