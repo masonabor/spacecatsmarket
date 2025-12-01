@@ -9,6 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
+import org.springframework.context.annotation.Primary;
 
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ import java.util.UUID;
 )
 public interface CategoryDtoMapper {
 
+    @Mapping(target = "id", ignore = true)
     CategoryEntity toCategoryEntity(CreateCategoryRequestDto createCategoryRequestDto);
 
     @Mapping(target = "id", source = "id", qualifiedByName = "toStringCategoryId")

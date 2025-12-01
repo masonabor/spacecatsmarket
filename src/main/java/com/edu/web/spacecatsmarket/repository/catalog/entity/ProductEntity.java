@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -30,7 +29,7 @@ public class ProductEntity {
     @Column(nullable = false)
     private Integer amount;
 
-    @Column(nullable = false, precision = 19, scale = 2)
+    @Column(name = "price")
     private Double price;
 
     @ManyToMany

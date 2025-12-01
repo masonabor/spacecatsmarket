@@ -1,7 +1,5 @@
 package com.edu.web.spacecatsmarket.repository.catalog;
 
-import com.edu.web.spacecatsmarket.domain.catalog.Category;
-import com.edu.web.spacecatsmarket.domain.catalog.Product;
 import com.edu.web.spacecatsmarket.repository.catalog.entity.CategoryEntity;
 import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,11 +38,11 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO product_category (product_id, category_id) VALUES (:productId, :categoryId)", nativeQuery = true)
+    @Query(value = "INSERT INTO product_categories (product_id, category_id) VALUES (:productId, :categoryId)", nativeQuery = true)
     void addCategory(@Param("productId") UUID productId, @Param("categoryId") UUID categoryId);
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM product_category WHERE product_id = :productId AND category_id = :categoryId", nativeQuery = true)
+    @Query(value = "DELETE FROM product_categories WHERE product_id = :productId AND category_id = :categoryId", nativeQuery = true)
     void removeCategory(@Param("productId") UUID productId, @Param("categoryId") UUID categoryId);
 }
