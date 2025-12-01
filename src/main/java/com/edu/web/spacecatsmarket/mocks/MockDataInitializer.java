@@ -1,9 +1,9 @@
 package com.edu.web.spacecatsmarket.mocks;
 
-import com.edu.web.spacecatsmarket.domain.catalog.Category;
-import com.edu.web.spacecatsmarket.domain.catalog.Product;
 import com.edu.web.spacecatsmarket.repository.catalog.CategoryRepository;
 import com.edu.web.spacecatsmarket.repository.catalog.ProductRepository;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.CategoryEntity;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -24,24 +24,27 @@ public class MockDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-            var category1 = Category.builder()
-                    .id(UUID.randomUUID())
-                    .name("1")
-                    .build();
-            var category2 = Category.builder()
-                    .id(UUID.randomUUID())
-                    .name("2")
-                    .build();
-            categoryRepository.save(category1);
-            categoryRepository.save(category2);
+        // Используем CategoryEntity, а не Category
+        var category1 = CategoryEntity.builder()
+                .id(UUID.randomUUID())
+                .name("1")
+                .build();
+        var category2 = CategoryEntity.builder()
+                .id(UUID.randomUUID())
+                .name("2")
+                .build();
 
-            productRepository.save(Product.builder()
-                    .id(UUID.randomUUID())
-                    .name("Product1")
-                    .description("lorem ipsum dolor sit amet")
-                    .price(123.4)
-                    .amount(100)
-                    .categories(new HashSet<>(Set.of(category1, category2)))
-                    .build());
+        categoryRepository.save(category1);
+        categoryRepository.save(category2);
+
+        // Используем ProductEntity, а не Product
+        productRepository.save(ProductEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Product1")
+                .description("lorem ipsum dolor sit amet")
+                .price(123.4)
+                .amount(100)
+                .categories(new HashSet<>(Set.of(category1, category2)))
+                .build());
     }
 }

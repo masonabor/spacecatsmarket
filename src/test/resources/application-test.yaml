@@ -1,0 +1,15 @@
+spring:
+  liquibase:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  docker:
+    compose:
+      enabled: false
+
+server:
+  port: 0

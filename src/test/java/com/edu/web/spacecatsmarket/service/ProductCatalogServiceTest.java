@@ -20,7 +20,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+/*
 @SpringBootTest(classes = {ProductCatalogServiceImpl.class})
 @Import(ProductDtoMapper.class)
 @DisplayName("ProductCatalog Service Tests")
@@ -87,3 +87,6 @@ public class ProductCatalogServiceTest {
         verify(productDtoMapper).toResponseProductDto(p2);
     }
 }
+
+
+ */

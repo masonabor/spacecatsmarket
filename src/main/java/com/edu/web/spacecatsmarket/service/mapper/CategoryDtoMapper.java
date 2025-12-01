@@ -18,6 +18,7 @@ import java.util.UUID;
 )
 public interface CategoryDtoMapper {
 
+    @Mapping(target = "id", ignore = true)
     CategoryEntity toCategoryEntity(CreateCategoryRequestDto createCategoryRequestDto);
 
     @Mapping(target = "id", source = "id", qualifiedByName = "toStringCategoryId")

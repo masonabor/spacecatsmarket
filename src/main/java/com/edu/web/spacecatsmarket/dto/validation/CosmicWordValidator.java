@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CosmicWordValidator implements ConstraintValidator<CosmicWordCheck, String> {
 
-    private static final List<String> COSMIC_TERMS = List.of("star", "galaxy", "comet", "steroids");
+    private static final List<String> COSMIC_TERMS = List.of("star", "galaxy", "comet", "asteroids");
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
