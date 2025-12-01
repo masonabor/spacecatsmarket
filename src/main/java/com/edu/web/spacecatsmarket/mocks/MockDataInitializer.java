@@ -24,7 +24,6 @@ public class MockDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // Используем CategoryEntity, а не Category
         var category1 = CategoryEntity.builder()
                 .id(UUID.randomUUID())
                 .name("1")
@@ -37,7 +36,6 @@ public class MockDataInitializer implements ApplicationRunner {
         categoryRepository.save(category1);
         categoryRepository.save(category2);
 
-        // Используем ProductEntity, а не Product
         productRepository.save(ProductEntity.builder()
                 .id(UUID.randomUUID())
                 .name("Product1")
