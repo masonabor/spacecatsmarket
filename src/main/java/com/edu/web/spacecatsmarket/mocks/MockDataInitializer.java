@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Profile("dev")
+@Profile("local")
 @Component
 @RequiredArgsConstructor
 public class MockDataInitializer implements ApplicationRunner {
