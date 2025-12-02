@@ -1,11 +1,10 @@
-package com.edu.web.spacecatsmarket.web;
+package com.edu.web.spacecatsmarket.web.exception;
 
 
 import com.edu.web.spacecatsmarket.service.exception.CategoryAlreadyExistException;
 import com.edu.web.spacecatsmarket.service.exception.CategoryNotFoundException;
 import com.edu.web.spacecatsmarket.service.exception.ProductAlreadyExistException;
 import com.edu.web.spacecatsmarket.service.exception.ProductNotFoundException;
-import com.edu.web.spacecatsmarket.web.exception.ParamsViolationDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.validation.FieldError;
