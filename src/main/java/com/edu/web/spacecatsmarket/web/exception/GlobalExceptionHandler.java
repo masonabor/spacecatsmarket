@@ -1,11 +1,11 @@
-package com.edu.web.spacecatsmarket.web;
+package com.edu.web.spacecatsmarket.web.exception;
 
 
+import com.edu.web.spacecatsmarket.featuretoggle.exception.FeatureToggleException;
 import com.edu.web.spacecatsmarket.service.exception.CategoryAlreadyExistException;
 import com.edu.web.spacecatsmarket.service.exception.CategoryNotFoundException;
 import com.edu.web.spacecatsmarket.service.exception.ProductAlreadyExistException;
 import com.edu.web.spacecatsmarket.service.exception.ProductNotFoundException;
-import com.edu.web.spacecatsmarket.web.exception.ParamsViolationDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.validation.FieldError;
@@ -19,8 +19,7 @@ import java.util.List;
 
 import static com.edu.web.spacecatsmarket.utils.ProblemDetailsUtils.getValidationErrorsProblemDetail;
 import static java.net.URI.create;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 
 @Slf4j
@@ -60,6 +59,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(CONFLICT, e.getMessage());
         problemDetail.setType(create("category-already-exist"));
         problemDetail.setTitle("Category already exist");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(FeatureToggleException.class)
+    ProblemDetail featureToggleException(FeatureToggleException e) {
+        log.warn("Feature toggle exception: {}", e.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(FORBIDDEN, e.getMessage());
+        problemDetail.setType(create("feature-toggle-exception"));
+        problemDetail.setTitle(e.getMessage());
         return problemDetail;
     }
 
