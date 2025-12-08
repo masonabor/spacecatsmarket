@@ -1,6 +1,5 @@
 package com.edu.web.spacecatsmarket.domain.ordering;
 
-import com.edu.web.spacecatsmarket.domain.catalog.Product;
 import lombok.Builder;
 import lombok.Value;
 
@@ -19,5 +18,5 @@ public class Order {
     Double price;
 
     @Builder.Default
-    Set<Product> products = new HashSet<>();
+    Set<OrderItem> items = new HashSet<>();
 }

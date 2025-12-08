@@ -1,12 +1,12 @@
 package com.edu.web.spacecatsmarket.service.impl;
 
-import com.edu.web.spacecatsmarket.domain.catalog.Category;
-import com.edu.web.spacecatsmarket.domain.catalog.Product;
 import com.edu.web.spacecatsmarket.dto.product.CreateProductRequestDto;
-import com.edu.web.spacecatsmarket.dto.product.UpdateProductRequestDto;
 import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
+import com.edu.web.spacecatsmarket.dto.product.UpdateProductRequestDto;
 import com.edu.web.spacecatsmarket.repository.catalog.CategoryRepository;
 import com.edu.web.spacecatsmarket.repository.catalog.ProductRepository;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.CategoryEntity;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
 import com.edu.web.spacecatsmarket.service.ProductService;
 import com.edu.web.spacecatsmarket.service.exception.CategoryNotFoundException;
 import com.edu.web.spacecatsmarket.service.exception.ProductAlreadyExistException;
@@ -15,76 +15,96 @@ import com.edu.web.spacecatsmarket.service.mapper.ProductDtoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductDtoMapper mapper;
     private final CategoryRepository categoryRepository;
+    private final ProductDtoMapper mapper;
 
     @Override
+    @Transactional
     public ResponseProductDto createProduct(CreateProductRequestDto createProductRequestDto) {
-        if (productRepository.existByName(createProductRequestDto.name())) {
+        if (productRepository.existsByName(createProductRequestDto.name())) {
             log.warn("Product with name {} already exists", createProductRequestDto.name());
             throw new ProductAlreadyExistException("Product with name " + createProductRequestDto.name() + " already exists");
         }
 
-        Product product = mapper.toProduct(createProductRequestDto);
+        ProductEntity product = mapper.toProductEntity(createProductRequestDto);
 
-        Set<Category> categories = fromIdsToCategories(createProductRequestDto.categoriesId());
-        for (Category category : categories) {
-            productRepository.addCategory(product.getId(), category);
-        }
+        Set<CategoryEntity> categories = fetchCategoriesByIds(createProductRequestDto.categoriesId());
 
-        productRepository.save(product);
-        log.info("New product created: {}", product.getName());
+        product.setCategories(categories);
 
-        return mapper.toResponseProductDto(product);
+        ProductEntity savedProduct = productRepository.save(product);
+
+        log.info("New product created: {}", savedProduct.getName());
+        return mapper.toResponseProductDto(savedProduct);
     }
 
     @Override
-    public void deleteProduct(UUID productId) throws ProductNotFoundException {
-        if (productRepository.findById(productId).isEmpty()) {
-            throw new ProductNotFoundException("Product not found: " + productId);
-        }
-        productRepository.delete(productId);
-        log.info("Deleted product with id {}", productId);
-    }
-
-    @Override
+    @Transactional
     public ResponseProductDto updateProduct(UpdateProductRequestDto updateProductRequestDto) {
-        if (productRepository.existByName(updateProductRequestDto.name())) {
+        UUID productId = UUID.fromString(updateProductRequestDto.id());
+
+        ProductEntity existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found: " + productId));
+
+        if (!existingProduct.getName().equals(updateProductRequestDto.name())
+                && productRepository.existsByName(updateProductRequestDto.name())) {
             throw new ProductAlreadyExistException("Product with name " + updateProductRequestDto.name() + " already exists");
         }
 
-        Product product = mapper.toProduct(updateProductRequestDto);
-        Set<Category> categories = fromIdsToCategories(updateProductRequestDto.categoriesId());
-        for (Category category : categories) {
-            productRepository.addCategory(product.getId(), category);
-        }
+        existingProduct.setName(updateProductRequestDto.name());
+        existingProduct.setDescription(updateProductRequestDto.description());
+        existingProduct.setPrice(updateProductRequestDto.price());
+        existingProduct.setAmount(updateProductRequestDto.amount());
 
-        productRepository.update(product);
-        log.info("Product with id {} updated", product.getId());
-        return mapper.toResponseProductDto(product);
+        Set<CategoryEntity> newCategories = fetchCategoriesByIds(updateProductRequestDto.categoriesId());
+        existingProduct.setCategories(newCategories);
+
+        ProductEntity savedProduct = productRepository.save(existingProduct);
+
+        log.info("Product with id {} updated", savedProduct.getId());
+        return mapper.toResponseProductDto(savedProduct);
     }
 
-    private Set<Category> fromIdsToCategories(Set<String> categoriesId) {
-        Set<Category> categories = new HashSet<>();
-        for (String id : categoriesId) {
-            Category category = categoryRepository.findById(UUID.fromString(id))
-                    .orElseThrow(() -> {
-                        log.warn("Category with id {} not found", id);
-                        return new CategoryNotFoundException("Category with id " + id + " not found");
-                    });
-            categories.add(category);
+    @Override
+    @Transactional
+    public void deleteProduct(UUID productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new ProductNotFoundException("Product not found: " + productId);
         }
-        return categories;
+        productRepository.deleteById(productId);
+        log.info("Deleted product with id {}", productId);
+    }
+
+    private Set<CategoryEntity> fetchCategoriesByIds(Set<String> categoriesId) {
+        if (categoriesId == null || categoriesId.isEmpty()) {
+            return new HashSet<>();
+        }
+
+        Set<UUID> uuids = categoriesId.stream()
+                .map(UUID::fromString)
+                .collect(Collectors.toSet());
+
+        List<CategoryEntity> categories = categoryRepository.findAllById(uuids);
+
+        if (categories.size() != uuids.size()) {
+            throw new CategoryNotFoundException("One or more categories not found");
+        }
+
+        return new HashSet<>(categories);
     }
 }

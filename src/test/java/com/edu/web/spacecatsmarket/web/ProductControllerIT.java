@@ -1,180 +1,129 @@
 package com.edu.web.spacecatsmarket.web;
 
+import com.edu.web.spacecatsmarket.AbstractIntegrationTest;
 import com.edu.web.spacecatsmarket.dto.product.CreateProductRequestDto;
-import com.edu.web.spacecatsmarket.dto.product.ResponseProductDto;
 import com.edu.web.spacecatsmarket.dto.product.UpdateProductRequestDto;
-import com.edu.web.spacecatsmarket.service.ProductCatalogService;
-import com.edu.web.spacecatsmarket.service.ProductService;
-import com.edu.web.spacecatsmarket.service.mapper.ProductDtoMapper;
+import com.edu.web.spacecatsmarket.repository.catalog.CategoryRepository;
+import com.edu.web.spacecatsmarket.repository.catalog.ProductRepository;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.CategoryEntity;
+import com.edu.web.spacecatsmarket.repository.catalog.entity.ProductEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@DisplayName("Product Controller Integration Tests")
-class ProductControllerIT {
+@ActiveProfiles("test")
+@DisplayName("Product Integration Tests")
+class ProductControllerIT extends AbstractIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
-    private ProductService productService;
-
-    @MockitoBean
-    private ProductCatalogService productCatalogService;
-
-    @MockitoBean
-    private ProductDtoMapper mapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private ResponseProductDto productResponse;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ProductRepository productRepository;
+    @Autowired private CategoryRepository categoryRepository;
+    @Autowired private ObjectMapper objectMapper;
 
     @BeforeEach
-    void setUp() {
-        reset(productService, productCatalogService);
-        productResponse = ResponseProductDto.builder()
-                .id(UUID.randomUUID().toString())
-                .name("Galaxy Phone")
-                .description("Smartphone for space travelers")
-                .amount(10)
-                .price(999.99)
-                .categories(Set.of())
-                .build();
+    void cleanUp() {
+        productRepository.deleteAll();
+        categoryRepository.deleteAll();
     }
 
     @Test
-    void testGetAllProducts_success() throws Exception {
-        when(productCatalogService.getAll()).thenReturn(List.of(productResponse));
+    @DisplayName("GET /api/v1/products - Should return all products")
+    void testGetAllProducts() throws Exception {
+        productRepository.save(ProductEntity.builder().name("P1").description("d").amount(1).price(10.0).categories(new HashSet<>()).build());
+        productRepository.save(ProductEntity.builder().name("P2").description("d").amount(1).price(10.0).categories(new HashSet<>()).build());
 
         mockMvc.perform(get("/api/v1/products"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Galaxy Phone"));
-
-        verify(productCatalogService, times(1)).getAll();
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test
-    void testGetProductById_success() throws Exception {
-        when(productCatalogService.getById(any())).thenReturn(productResponse);
+    @DisplayName("GET /api/v1/products/{id} - Should return product by ID")
+    void testGetById() throws Exception {
+        ProductEntity saved = productRepository.save(ProductEntity.builder().name("FindMe").description("d").amount(1).price(10.0).categories(new HashSet<>()).build());
 
-        mockMvc.perform(get("/api/v1/products/{id}", UUID.randomUUID()))
+        mockMvc.perform(get("/api/v1/products/{id}", saved.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Galaxy Phone"));
-
-        verify(productCatalogService, times(1)).getById(any());
+                .andExpect(jsonPath("$.name", is("FindMe")));
     }
 
     @Test
+    @DisplayName("POST /api/v1/products - Should create product successfully")
     void testCreateProduct_success() throws Exception {
-        CreateProductRequestDto request = CreateProductRequestDto.builder()
-                .name("Galaxy Phone")
-                .description("Smartphone for space travelers")
-                .amount(10)
-                .price(999.99)
-                .categoriesId(Set.of(UUID.randomUUID().toString()))
-                .build();
-
-        when(productService.createProduct(any())).thenReturn(productResponse);
+        CategoryEntity cat = categoryRepository.save(CategoryEntity.builder().name("Food").build());
+        CreateProductRequestDto request = new CreateProductRequestDto("Galaxy Tuna", "Fresh", 10, 55.5, Set.of(cat.getId().toString()));
 
         mockMvc.perform(post("/api/v1/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Galaxy Phone"));
+                .andExpect(jsonPath("$.name", is("Galaxy Tuna")));
 
-        verify(productService, times(1)).createProduct(any());
+        assertTrue(productRepository.existsByName("Galaxy Tuna"));
     }
 
     @Test
-    void testCreateProduct_invalidData_returnsBadRequest() throws Exception {
-        CreateProductRequestDto invalid = CreateProductRequestDto.builder()
-                .name("")
-                .description("")
-                .amount(-1)
-                .price(null)
-                .categoriesId(Set.of())
-                .build();
+    @DisplayName("PUT /api/v1/products/{id} - Should update product successfully")
+    void testUpdateProduct_success() throws Exception {
+        ProductEntity saved = productRepository.save(ProductEntity.builder().name("galaxy Old").description("galaxy d").amount(1).price(10.0).categories(new HashSet<>()).build());
+        UpdateProductRequestDto request = new UpdateProductRequestDto(saved.getId().toString(), "galaxy Valid Product", "galaxy New Desc", 5, 20.0, Set.of());
 
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(put("/api/v1/products/{id}", saved.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest());
-
-        verify(productService, never()).createProduct(any());
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("galaxy Valid Product")));
     }
 
-
     @Test
-    void testUpdateProduct_idMismatch_returnsBadRequest() throws Exception {
-        UpdateProductRequestDto request = new UpdateProductRequestDto(
-                "wrong-id",
-                "Updated Name",
-                "Updated Description",
-                5,
-                500.0,
-                Set.of(UUID.randomUUID().toString())
-        );
+    @DisplayName("PUT /api/v1/products/{id} - Should return 400 if IDs mismatch")
+    void testUpdateProduct_BadRequestIdMismatch() throws Exception {
+        UUID correctId = UUID.randomUUID();
+        UUID mismatchId = UUID.randomUUID();
 
-        mockMvc.perform(put("/api/v1/products/{id}", "another-id")
+        UpdateProductRequestDto request = new UpdateProductRequestDto(correctId.toString(), "N", "D", 1, 1.0, Set.of());
+
+        mockMvc.perform(put("/api/v1/products/{id}", mismatchId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
-
-        verify(productService, never()).updateProduct(any());
     }
 
     @Test
-    void testDeleteProduct_success() throws Exception {
-        doNothing().when(productService).deleteProduct(any());
+    @DisplayName("PUT /api/v1/products/{id} - Should return 404 if product not found")
+    void testUpdateProduct_NotFound() throws Exception {
+        UUID randomId = UUID.randomUUID();
+        UpdateProductRequestDto request = new UpdateProductRequestDto(randomId.toString(), "galaxy Ghost", "D", 1, 1.0, Set.of());
 
-        mockMvc.perform(delete("/api/v1/products/{id}", UUID.randomUUID()))
+        mockMvc.perform(put("/api/v1/products/{id}", randomId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/products/{id} - Should delete product successfully")
+    void testDeleteProduct() throws Exception {
+        ProductEntity saved = productRepository.save(ProductEntity.builder().name("Delete Me").description("d").amount(1).price(10.0).categories(new HashSet<>()).build());
+
+        mockMvc.perform(delete("/api/v1/products/{id}", saved.getId()))
                 .andExpect(status().isNoContent());
 
-        verify(productService, times(1)).deleteProduct(any());
+        assertFalse(productRepository.existsById(saved.getId()));
     }
-
-    @Test
-    void testUpdateProduct_success() throws Exception {
-        String productId = productResponse.id();
-        UpdateProductRequestDto request = new UpdateProductRequestDto(
-                productId,
-                "New Galaxy Name",
-                "Updated Description",
-                5,
-                500.0,
-                Set.of(UUID.randomUUID().toString())
-        );
-
-        when(productService.updateProduct(any(UpdateProductRequestDto.class)))
-                .thenReturn(productResponse);
-
-        mockMvc.perform(put("/api/v1/products/{id}", productId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(productId))
-                .andExpect(jsonPath("$.name").value(productResponse.name()));
-
-        verify(productService, times(1)).updateProduct(any(UpdateProductRequestDto.class));
-    }
-
 }
